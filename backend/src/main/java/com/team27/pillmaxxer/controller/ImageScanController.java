@@ -2,6 +2,8 @@ package com.team27.pillmaxxer.controller;
 
 import com.team27.pillmaxxer.service.ImageScanService;
 import com.team27.pillmaxxer.dto.ImageScanRequest;
+import com.team27.pillmaxxer.model.Prescription;
+
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,7 +21,7 @@ public class ImageScanController {
      * Request body: { "imageUrl": "http://example.com/image.jpg" }
      */
     @PostMapping("/upload")
-    public String scanImageForText(@RequestBody ImageScanRequest req) {
-        return imageScanService.extractText(req.getImageUrl());
+    public Prescription scanImageForText(@RequestBody ImageScanRequest req) {
+        return imageScanService.scanImage(req.getImageUrl());
     }
 }
