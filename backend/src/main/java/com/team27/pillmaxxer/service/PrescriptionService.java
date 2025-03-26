@@ -19,14 +19,11 @@ public class PrescriptionService {
 
     private final PrescriptionRepository prescriptionRepository;
     private final MedicationRepository medicationRepository;
-    private final MedicationScheduleService scheduleService;
 
     public PrescriptionService(PrescriptionRepository prescriptionRepository,
-            MedicationRepository medicationRepository,
-            MedicationScheduleService scheduleService) {
+            MedicationRepository medicationRepository) {
         this.prescriptionRepository = prescriptionRepository;
         this.medicationRepository = medicationRepository;
-        this.scheduleService = scheduleService;
     }
 
     public Prescription createPrescription(PrescriptionDto prescriptionDto)
