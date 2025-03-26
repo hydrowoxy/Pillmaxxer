@@ -1,0 +1,80 @@
+package com.team27.pillmaxxer.service;
+
+import com.team27.pillmaxxer.dto.PrescriptionDto;
+import com.team27.pillmaxxer.model.Medication;
+import com.team27.pillmaxxer.model.Prescription;
+import com.team27.pillmaxxer.repositories.MedicationRepository;
+import com.team27.pillmaxxer.repositories.PrescriptionRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+@Service
+public class PrescriptionService {
+
+    private final PrescriptionRepository prescriptionRepository;
+    private final MedicationRepository medicationRepository;
+    private final MedicationScheduleService scheduleService;
+
+    public PrescriptionService(PrescriptionRepository prescriptionRepository,
+            MedicationRepository medicationRepository,
+            MedicationScheduleService scheduleService) {
+        this.prescriptionRepository = prescriptionRepository;
+        this.medicationRepository = medicationRepository;
+        this.scheduleService = scheduleService;
+    }
+
+    public Prescription createPrescription(PrescriptionDto prescriptionDto)
+            throws ExecutionException, InterruptedException {
+        // Find or create medication
+
+        System.out.println("Attempting to create medication: " + prescriptionDto.getMedicationName());
+        Medication medication = medicationRepository.findByName(prescriptionDto.getMedicationName())
+                .orElseGet(() -> {
+                    Medication newMed = new Medication();
+                    newMed.setName(prescriptionDto.getMedicationName());
+                    try {
+                        return medicationRepository.save(newMed);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Failed to create medication", e);
+                    }
+                });
+
+        // Create prescription
+        Prescription prescription = new Prescription();
+        prescription.setPatientId(prescriptionDto.getPatientId());
+        prescription.setMedicationId(medication.getId());
+        prescription.setMedicationName(medication.getName());
+        prescription.setDosage(prescriptionDto.getDosage());
+        prescription.setStartDate(prescriptionDto.getStartDate());
+        prescription.setEndDate(prescriptionDto.getEndDate());
+        prescription.setInstructions(prescriptionDto.getInstructions());
+        prescription.setFrequency(prescriptionDto.getFrequency());
+        prescription.setQuantity(prescriptionDto.getQuantity());
+        prescription.setActive(true);
+
+        System.out.println("Attempting to save prescription...");
+        Prescription savedPrescription = prescriptionRepository.save(prescription);
+        System.out.println("Prescription saved: " + savedPrescription);
+
+        return savedPrescription;
+    }
+
+    public List<Prescription> getActivePrescriptionsForPatient(String patientId)
+            throws ExecutionException, InterruptedException {
+        return prescriptionRepository.findActiveByPatientId(patientId);
+    }
+
+    public void deactivatePrescription(String prescriptionId) throws ExecutionException, InterruptedException {
+        prescriptionRepository.findById(prescriptionId).ifPresent(prescription -> {
+            prescription.setActive(false);
+            try {
+                prescriptionRepository.save(prescription);
+                scheduleService.updatePatientSchedule(prescription.getPatientId());
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to deactivate prescription", e);
+            }
+        });
+    }
+}
