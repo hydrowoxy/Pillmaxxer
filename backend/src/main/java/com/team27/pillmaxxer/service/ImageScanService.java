@@ -29,7 +29,7 @@ public class ImageScanService {
 
     public String extractText(String imgUrl) {
         ITesseract tesseract = new Tesseract();
-        tesseract.setLanguage("eng"); 
+        tesseract.setLanguage("eng");
 
         try {
             URI uri = new URI(imgUrl);
@@ -60,7 +60,7 @@ public class ImageScanService {
 
         String medication = find(text, "([A-Za-z0-9\\\\s]+)");
         System.out.println("REGEX:" + medication);
-        
+
         String dosage = find(text, "(\\d+)\\s?(mg|ml|g)");
         System.out.println("REGEX:" + dosage);
 
@@ -70,13 +70,16 @@ public class ImageScanService {
         String frequency = find(text, "(once|twice|three times|per day|daily)");
         System.out.println("REGEX:" + frequency);
 
+        /*
+         * TODO - need to check if medication exists in database, if not, add it to the
+         * database
+         * Then create a prescription object that references the medication
+         */
         Prescription prescription = new Prescription();
-
-        prescription.setMedication(medication);
         prescription.setDosage(dosage);
         prescription.setQuantity(quantity);
         prescription.setFrequency(frequency);
-        
+
         return prescription;
     }
 

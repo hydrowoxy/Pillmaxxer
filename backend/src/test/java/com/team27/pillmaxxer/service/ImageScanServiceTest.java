@@ -12,14 +12,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 class ImageScanServiceTest {
-	@Autowired
+    @Autowired
     private ImageScanService imageScanService;
-    
+
     @Test
     void testExtractText() {
         String imgUrl = "https://builtin.com/sites/www.builtin.com/files/styles/ckeditor_optimize/public/inline-images/5_python-ocr.jpg";
         String extractedText = imageScanService.extractText(imgUrl);
-        
+
         assertEquals("Tesseract sample", extractedText);
     }
 
@@ -28,7 +28,7 @@ class ImageScanServiceTest {
         String rawText = "Aspirin 500mg 1 capsules once daily";
         Prescription prescription = imageScanService.decipherText(rawText);
 
-        assertEquals("Aspirin", prescription.getMedication());
+        assertEquals("Aspirin", prescription.getMedicationName());
         assertEquals("500", prescription.getDosage());
         assertEquals("1", prescription.getQuantity());
         assertEquals("once", prescription.getFrequency());
