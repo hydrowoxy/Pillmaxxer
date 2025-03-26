@@ -7,6 +7,10 @@ import org.springframework.stereotype.Component;
 import java.time.LocalTime;
 import java.util.stream.Collectors;
 
+/*
+ * This class maps MedicationSchedule objects to MedicationScheduleDto objects and vice versa.
+ * It also maps Firestore documents to MedicationScheduleDto objects using the methods defined in MedicationScheduleDto.
+ */
 @Component
 public class MedicationScheduleMapper implements FirestoreMapper<MedicationScheduleDto, MedicationSchedule> {
 

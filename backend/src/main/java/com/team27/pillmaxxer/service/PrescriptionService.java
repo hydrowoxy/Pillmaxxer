@@ -5,12 +5,16 @@ import com.team27.pillmaxxer.model.Medication;
 import com.team27.pillmaxxer.model.Prescription;
 import com.team27.pillmaxxer.repositories.MedicationRepository;
 import com.team27.pillmaxxer.repositories.PrescriptionRepository;
+
+import lombok.extern.java.Log;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Service
+@Log
 public class PrescriptionService {
 
     private final PrescriptionRepository prescriptionRepository;
@@ -29,7 +33,7 @@ public class PrescriptionService {
             throws ExecutionException, InterruptedException {
         // Find or create medication
 
-        System.out.println("Attempting to create medication: " + prescriptionDto.getMedicationName());
+        log.info("Attempting to create medication: " + prescriptionDto.getMedicationName());
         Medication medication = medicationRepository.findByName(prescriptionDto.getMedicationName())
                 .orElseGet(() -> {
                     Medication newMed = new Medication();
@@ -54,9 +58,8 @@ public class PrescriptionService {
         prescription.setQuantity(prescriptionDto.getQuantity());
         prescription.setActive(true);
 
-        System.out.println("Attempting to save prescription...");
+        log.info("Attempting to save prescription...");
         Prescription savedPrescription = prescriptionRepository.save(prescription);
-        System.out.println("Prescription saved: " + savedPrescription);
 
         return savedPrescription;
     }
@@ -64,17 +67,5 @@ public class PrescriptionService {
     public List<Prescription> getActivePrescriptionsForPatient(String patientId)
             throws ExecutionException, InterruptedException {
         return prescriptionRepository.findActiveByPatientId(patientId);
-    }
-
-    public void deactivatePrescription(String prescriptionId) throws ExecutionException, InterruptedException {
-        prescriptionRepository.findById(prescriptionId).ifPresent(prescription -> {
-            prescription.setActive(false);
-            try {
-                prescriptionRepository.save(prescription);
-                scheduleService.updatePatientSchedule(prescription.getPatientId());
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to deactivate prescription", e);
-            }
-        });
     }
 }

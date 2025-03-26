@@ -1,13 +1,14 @@
 package com.team27.pillmaxxer.dto;
 
-import com.google.cloud.firestore.DocumentSnapshot;
-
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.*;
 
+/*
+ * This class provides methods to convert a Firestore map to a PrescriptionDto and vice versa.
+ */
 @Getter
 @Setter
 public class PrescriptionDto {

@@ -1,13 +1,13 @@
 package com.team27.pillmaxxer.dto;
 
-import com.google.cloud.firestore.DocumentSnapshot;
-
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.*;
 
+/*
+ * This class provides methods to convert a MedicationDto to a Firestore map and vice versa.
+ */
 @Getter
 @Setter
 public class MedicationDto {

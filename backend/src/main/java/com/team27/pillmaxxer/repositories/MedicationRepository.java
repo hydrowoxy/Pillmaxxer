@@ -13,6 +13,12 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+/**
+ * Repository for managing Medication entities in Firestore.
+ * Provides basic CRUD operations and query capabilities for Medication
+ * documents.
+ * Also provides a custom method to find a Medication by its name.
+ */
 @Repository
 public class MedicationRepository implements FirestoreRepository<Medication, String> {
     private static final String COLLECTION_NAME = "medications";
@@ -95,15 +101,5 @@ public class MedicationRepository implements FirestoreRepository<Medication, Str
 
         List<Medication> results = findByQuery(query);
         return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
-    }
-
-    public List<Medication> findByNameContaining(String namePart) throws ExecutionException, InterruptedException {
-        // Firestore doesn't support native string contains queries,
-        // so we implement a prefix search as a workaround
-        Query query = firestore.collection(COLLECTION_NAME)
-                .whereGreaterThanOrEqualTo("name", namePart)
-                .whereLessThanOrEqualTo("name", namePart + "\uf8ff");
-
-        return findByQuery(query);
     }
 }

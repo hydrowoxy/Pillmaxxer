@@ -2,13 +2,21 @@ package com.team27.pillmaxxer.dto;
 
 import com.google.cloud.firestore.DocumentSnapshot;
 
+/**
+ * Defines a contract for mapping between domain models and DTOs (Data Transfer
+ * Objects)
+ * with Firestore document conversion capabilities.
+ * 
+ * Generic type parameters:
+ * 
+ * @param <D> The DTO (Data Transfer Object) type
+ * @param <M> The domain Model type
+ */
 public interface FirestoreMapper<D, M> {
-    // Convert domain model to DTO
+
     D toDto(M model);
 
-    // Convert DTO to domain model
     M toDomainModel(D dto);
 
-    // Convert Firestore document to DTO
     D fromFirestoreDocument(DocumentSnapshot document);
 }

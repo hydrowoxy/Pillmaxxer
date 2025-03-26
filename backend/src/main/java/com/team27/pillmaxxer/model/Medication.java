@@ -1,6 +1,8 @@
 package com.team27.pillmaxxer.model;
 
-import lombok.*;
+import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor

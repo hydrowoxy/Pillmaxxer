@@ -2,15 +2,22 @@ package com.team27.pillmaxxer.dto;
 
 import com.team27.pillmaxxer.model.MedicationSchedule;
 import com.team27.pillmaxxer.model.MedicationSchedule.ScheduledDose;
-import com.google.cloud.firestore.DocumentSnapshot;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
+/*
+ * This class provides methods to convert MedicationSchedule objects to MedicationScheduleDto objects and vice versa.
+ * It also provides methods to convert Firestore maps to MedicationScheduleDto objects.
+ */
+
+@Getter
+@Setter
 public class MedicationScheduleDto {
     private String id;
     private String patientId;
@@ -51,7 +58,6 @@ public class MedicationScheduleDto {
         }
     }
 
-    // Conversion methods
     public Map<String, Object> toFirestoreMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("id", this.id);
@@ -102,38 +108,5 @@ public class MedicationScheduleDto {
                 .collect(Collectors.toList()));
 
         return dto;
-    }
-
-    // Getters and Setters
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getPatientId() {
-        return patientId;
-    }
-
-    public void setPatientId(String patientId) {
-        this.patientId = patientId;
-    }
-
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
-    public List<ScheduledDoseDto> getScheduledDoses() {
-        return scheduledDoses;
-    }
-
-    public void setScheduledDoses(List<ScheduledDoseDto> scheduledDoses) {
-        this.scheduledDoses = scheduledDoses;
     }
 }

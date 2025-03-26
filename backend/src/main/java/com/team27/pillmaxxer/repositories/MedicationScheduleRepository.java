@@ -14,6 +14,11 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+/**
+ * Repository for managing MedicationSchedule entities in Firestore.
+ * Provides custom query methods for finding schedules by date, oatientId and
+ * date range.
+ */
 @Repository
 public class MedicationScheduleRepository implements FirestoreRepository<MedicationSchedule, String> {
     private static final String COLLECTION_NAME = "medicationSchedules";

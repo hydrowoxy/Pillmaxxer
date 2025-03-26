@@ -14,6 +14,10 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+/*
+ * Repository for managing Prescription entities in Firestore.
+ * Provides custom query methods for finding prescriptions by patientId, medicationId, and date range.
+ */
 @Repository
 public class PrescriptionRepository implements FirestoreRepository<Prescription, String> {
     private static final String COLLECTION_NAME = "prescriptions";
@@ -30,7 +34,6 @@ public class PrescriptionRepository implements FirestoreRepository<Prescription,
     @Override
     public Prescription save(Prescription entity) throws ExecutionException, InterruptedException {
 
-        System.out.println("Saving prescription...");
         PrescriptionDto dto = mapper.toDto(entity);
 
         if (dto.getId() == null) {

@@ -4,6 +4,10 @@ import com.google.cloud.firestore.DocumentSnapshot;
 import com.team27.pillmaxxer.model.Medication;
 import org.springframework.stereotype.Component;
 
+/*
+ * This class is used to map the MedicationDto to the Medication model and vice versa.
+ * It also contains a method to convert a Firestore document to a MedicationDto using methods in the MedicationDto class.
+ */
 @Component
 public class MedicationMapper implements FirestoreMapper<MedicationDto, Medication> {
 
