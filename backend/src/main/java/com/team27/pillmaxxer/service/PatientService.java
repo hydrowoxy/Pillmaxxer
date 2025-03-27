@@ -14,7 +14,10 @@ import com.team27.pillmaxxer.model.Patient;
 import com.team27.pillmaxxer.repositories.PatientRepository;
 import com.team27.pillmaxxer.service.auth.FirebaseAuthService;
 
+import lombok.extern.java.Log;
+
 @Service
+@Log
 public class PatientService {
 
     private final PatientRepository patientRepository;
@@ -31,14 +34,17 @@ public class PatientService {
 
     public Patient registerPatient(PatientRegisterRequest patientRequest)
             throws FirebaseAuthException, ExecutionException, InterruptedException {
+
+        log.info("Creating Firebase user...");
         String uid = authService.createFirebaseUser(patientRequest.getEmail(), patientRequest.getEncryptedPassword());
+        log.info("Firebase user created: " + uid);
 
         Patient patientData = new Patient();
         patientData = this.patientMapper.toDomainModel(patientRequest, uid);
 
         patientData.setUserId(uid);
         patientData.setPatientId(UUID.randomUUID().toString());
-
+        log.info("Saving patient data...");
         return patientRepository.save(patientData);
     }
 

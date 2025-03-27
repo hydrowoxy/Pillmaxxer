@@ -7,7 +7,10 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
 
+import lombok.extern.java.Log;
+
 @Service
+@Log
 public class FirebaseAuthService {
 
     private final FirebaseAuth firebaseAuth;
@@ -17,11 +20,11 @@ public class FirebaseAuthService {
     }
 
     public String createFirebaseUser(String email, String password) throws FirebaseAuthException {
+        log.info("Creating a user record in firebase.. ");
         UserRecord.CreateRequest request = new UserRecord.CreateRequest()
                 .setEmail(email)
                 .setPassword(password)
                 .setDisabled(false);
-
         UserRecord userRecord = firebaseAuth.createUser(request);
         return userRecord.getUid();
     }
