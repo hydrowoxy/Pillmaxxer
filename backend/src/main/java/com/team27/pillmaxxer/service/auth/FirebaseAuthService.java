@@ -30,7 +30,6 @@ public class FirebaseAuthService {
         return firebaseAuth.verifyIdToken(idToken);
     }
 
-    // Additional useful methods
     public void deleteUser(String uid) throws FirebaseAuthException {
         firebaseAuth.deleteUser(uid);
     }
