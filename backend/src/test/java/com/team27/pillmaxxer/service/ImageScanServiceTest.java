@@ -23,7 +23,7 @@ class ImageScanServiceTest {
 
     @Test
     void testExtractText() throws IOException {
-        InputStream imageStream = new FileInputStream(new File("/service/ocr-test.jpg"));
+        InputStream imageStream = new FileInputStream(new File("src/test/java/com/team27/pillmaxxer/resources/ocr-test.jpg"));
         MockMultipartFile mockImageUpload = new MockMultipartFile("imageFile", "ocr-test.jpg", "image/jpeg", imageStream.readAllBytes());
 
         String extractedText = imageScanService.extractText(mockImageUpload);
