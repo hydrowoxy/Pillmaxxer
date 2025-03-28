@@ -20,13 +20,24 @@ public class FirebaseAuthService {
     }
 
     public String createFirebaseUser(String email, String password) throws FirebaseAuthException {
-        log.info("Creating a user record in firebase.. ");
+        log.info("Creating a user record in firebase.. " + email);
         UserRecord.CreateRequest request = new UserRecord.CreateRequest()
                 .setEmail(email)
                 .setPassword(password)
                 .setDisabled(false);
-        UserRecord userRecord = firebaseAuth.createUser(request);
-        return userRecord.getUid();
+
+        log.info("Created user record in firebase.. " + request);
+        try {
+            UserRecord userRecord = firebaseAuth.createUser(request);
+            log.info("Created user record in firebase.. " + userRecord.getUid());
+            return userRecord.getUid();
+        } catch (FirebaseAuthException e) {
+            log.severe("Error creating user record in firebase.. " + e.getMessage());
+            throw e;
+        }
+        // UserRecord userRecord = firebaseAuth.createUser(request);
+        // log.info("Created user record in firebase.. " + userRecord.getUid());
+        // return userRecord.getUid();
     }
 
     public FirebaseToken verifyToken(String idToken) throws FirebaseAuthException {

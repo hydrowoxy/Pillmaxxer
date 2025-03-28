@@ -35,8 +35,8 @@ public class PatientService {
     public Patient registerPatient(PatientRegisterRequest patientRequest)
             throws FirebaseAuthException, ExecutionException, InterruptedException {
 
-        log.info("Creating Firebase user...");
-        String uid = authService.createFirebaseUser(patientRequest.getEmail(), patientRequest.getEncryptedPassword());
+        log.info("Creating Firebase user..." + patientRequest);
+        String uid = authService.createFirebaseUser(patientRequest.getEmail(), patientRequest.getPassword());
         log.info("Firebase user created: " + uid);
 
         Patient patientData = new Patient();

@@ -11,10 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PatientRegisterRequest {
     String email;
-    String encryptedPassword;
+    String password;
     String firstName;
     String lastName;
     String phoneNumber;
-    String dateOfBirth;
     List<String> deviceTokens;
 }

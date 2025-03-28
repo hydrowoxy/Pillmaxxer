@@ -34,11 +34,10 @@ public class PatientController {
      * Example Body:
      * {
      * "email": "ayushpatel.8332@gmail.com",
-     * "encryptedPassword": "418759249857425",
+     * "password": "418759249857425",
      * "firstName": "Ayush",
      * "lastName": "Patel",
      * "phoneNumber": "9293840329",
-     * "dateOfBirth": "749237493",
      * "deviceTokens": ["43894810983", "47891347928"]
      * }
      * 
@@ -50,7 +49,7 @@ public class PatientController {
     public ResponseEntity<Patient> registerPatient(@RequestBody PatientRegisterRequest patientRequest) {
         Patient createdPatient;
         try {
-            log.info("Registering patient...");
+            log.info("Registering patient..." + patientRequest);
             createdPatient = patientService.registerPatient(patientRequest);
             log.info("Patient registered: " + createdPatient.getEmail());
             return ResponseEntity.ok(createdPatient);
