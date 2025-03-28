@@ -1,5 +1,7 @@
 package com.team27.pillmaxxer.service;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
@@ -21,35 +23,23 @@ import javax.imageio.ImageIO;
 
 @Service
 public class ImageScanService {
-    public Prescription scanImage(String imgUrl) {
-        String rawText = extractText(imgUrl);
+    public Prescription scanImage(MultipartFile file) {
+        String rawText = extractText(file);
         Prescription prescription = decipherText(rawText);
         return prescription;
     }
 
-    public String extractText(String imgUrl) {
+    public String extractText(MultipartFile file) {
         ITesseract tesseract = new Tesseract();
         tesseract.setLanguage("eng");
 
         try {
-            URI uri = new URI(imgUrl);
-
-            if (!"https".equalsIgnoreCase(uri.getScheme())) {
-                throw new IllegalArgumentException("Only HTTPS supported");
-            }
-
-            BufferedImage bufferedImg = ImageIO.read(uri.toURL());
-
-            if (bufferedImg == null) {
-                throw new IOException("Failed to load image from " + imgUrl);
-            }
-
+            BufferedImage bufferedImg = ImageIO.read(file.getInputStream());
+            if (bufferedImg == null) throw new IOException("Failed to load image");
             String result = tesseract.doOCR(bufferedImg);
             return result.trim();
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("Invalid URL: ", e);
         } catch (IOException e) {
-            throw new RuntimeException("Error reading from URL: ", e);
+            throw new RuntimeException("Error loading image: ", e);
         } catch (TesseractException e) {
             throw new RuntimeException("Error performing OCR on image: ", e);
         }
@@ -59,23 +49,16 @@ public class ImageScanService {
         text.replaceAll("\n", " ").replaceAll("\\s+", " ").trim();
 
         String medication = find(text, "([A-Za-z0-9\\\\s]+)");
-        System.out.println("REGEX:" + medication);
-
         String dosage = find(text, "(\\d+)\\s?(mg|ml|g)");
-        System.out.println("REGEX:" + dosage);
-
         String quantity = find(text, "(\\d+)\\s?(capsules|tablets|pills)");
-        System.out.println("REGEX:" + quantity);
-
         String frequency = find(text, "(once|twice|three times|per day|daily)");
-        System.out.println("REGEX:" + frequency);
 
         /*
          * TODO - need to check if medication exists in database, if not, add it to the
          * database
-         * Then create a prescription object that references the medication
          */
         Prescription prescription = new Prescription();
+        prescription.setMedicationName(medication);
         prescription.setDosage(dosage);
         prescription.setQuantity(quantity);
         prescription.setFrequency(frequency);

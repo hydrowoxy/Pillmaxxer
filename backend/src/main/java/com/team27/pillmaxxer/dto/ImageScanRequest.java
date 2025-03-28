@@ -1,13 +1,10 @@
 package com.team27.pillmaxxer.dto;
+import org.springframework.web.multipart.MultipartFile;
 
 public class ImageScanRequest {
-    private String imageUrl;
+    private MultipartFile imageFile;
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public MultipartFile getFile() {
+        return imageFile;
     }
 }
