@@ -3,10 +3,12 @@ import { Text, Image, StyleSheet, TouchableOpacity } from "react-native"
 import * as ImagePicker from "expo-image-picker"
 import { View } from "react-native"
 import { Link } from "expo-router"
+import { postImageUpload } from "../api/image-scan"
 
 export default function App() {
   const [image, setImage] = useState<string | null>(null)
   const [hasPermission, setHasPermission] = useState<boolean | null>(null)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     ;(async () => {
@@ -28,8 +30,12 @@ export default function App() {
   }
 
   const handleImageUpload = async () => {
-    // TODO
-    console.log("lol")
+    console.log("trying image upload...........")
+    setLoading(true)
+    const res = await postImageUpload({ params: { imageUri: image || "" } })
+    // TODO: implement resulting popup/modal/redirect to filled out form?
+    setLoading(false)
+    console.log("success")
   }
 
   return (
@@ -38,17 +44,26 @@ export default function App() {
 
       {image && <Image source={{ uri: image }} style={styles.image} />}
 
-      <TouchableOpacity style={styles.button} onPress={takePhoto}>
+      <TouchableOpacity
+        style={[styles.button, loading && styles.buttonDisabled]}
+        onPress={takePhoto}
+      >
         <Text style={styles.buttonText}>
           {image ? "I want to take a better photo." : "I want to take a photo."}
         </Text>
       </TouchableOpacity>
 
       {image && (
-        <TouchableOpacity style={styles.button} onPress={handleImageUpload}>
+        <TouchableOpacity
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handleImageUpload}
+          disabled={loading}
+        >
           <Text style={styles.buttonText}>I'm happy with this photo!</Text>
         </TouchableOpacity>
       )}
+
+      {loading && <Text>Please wait while the image loads~!</Text>}
 
       <Link href="/" style={styles.link}>
         Take me back home, please.
@@ -76,6 +91,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
+  },
+  buttonDisabled: {
+    backgroundColor: "#99ccff",
   },
   buttonText: {
     color: "#fff",
