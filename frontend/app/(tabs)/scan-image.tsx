@@ -3,7 +3,7 @@ import { Text, Image, StyleSheet, TouchableOpacity } from "react-native"
 import * as ImagePicker from "expo-image-picker"
 import { View } from "react-native"
 import { Link } from "expo-router"
-import { postImageUpload } from "../api/image-scan"
+import { postImageUpload } from "../../api/image-scan"
 
 export default function App() {
   const [image, setImage] = useState<string | null>(null)
@@ -30,10 +30,9 @@ export default function App() {
   }
 
   const handleImageUpload = async () => {
-    console.log("trying image upload...........")
     setLoading(true)
-    const res = await postImageUpload({ params: { imageUri: image || "" } })
-    // TODO: implement resulting popup/modal/redirect to filled out form?
+    const res = await postImageUpload({ params: { imageFile: image || "" } })
+    // TODO: implement resulting popup/modal/redirect to filled out form ........
     setLoading(false)
     console.log("success")
   }
@@ -63,7 +62,7 @@ export default function App() {
         </TouchableOpacity>
       )}
 
-      {loading && <Text>Please wait while the image loads~!</Text>}
+      {loading && <Text>Loading...</Text>}
 
       <Link href="/" style={styles.link}>
         Take me back home, please.

@@ -1,6 +1,6 @@
 import { get, post } from "./util"
 
-const API_URL = process.env.EXPO_API_URL
+const API_URL = process.env.EXPO_PUBLIC_API_URL
 
 // THIS IS JUST A DUMMY GET
 interface dummyGetProps {
@@ -17,17 +17,11 @@ export const dummyGet = async ({ params }: dummyGetProps) => {
 
 interface postImageUploadProps {
   params: {
-    imageUri: string
+    imageFile: string
   }
 }
 
 export const postImageUpload = async ({ params }: postImageUploadProps) => {
-  const img = await fetch(params.imageUri)
-  const blob = await img.blob()
-
-  const formData = new FormData()
-  formData.append("image", blob, "image/jpeg")
-
   const data = await post({
     url: `${API_URL}/api/image-scan/upload`,
     body: params,

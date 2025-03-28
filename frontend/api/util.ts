@@ -1,3 +1,5 @@
+import { convertUriToBlob, isImageUri } from "@/utils/imageUtils"
+
 interface GetProps {
   url: string
   params?: any
@@ -32,22 +34,23 @@ interface PostProps {
 }
 
 export const post = async ({ url, body, formData }: PostProps) => {
-  const headers: Record<string, string> = {
-    "Content-Type": formData ? "multipart/form-data" : "application/json",
-  }
+  const headers: Record<string, string> = formData
+    ? {}
+    : { "Content-Type": "application/json" }
 
   let requestBody: any
 
   if (formData) {
     const form = new FormData()
     if (body) {
-      Object.keys(body).forEach((key) => {
-        if (body[key] instanceof File || body[key] instanceof Blob) {
-          form.append(key, body[key])
+      for (const key of Object.keys(body)) {
+        if (isImageUri(body[key])) {
+          const fileBlob = await convertUriToBlob(body[key])
+          form.append(key, fileBlob, key + ".jpg")
         } else {
           form.append(key, body[key])
         }
-      })
+      }
     }
     requestBody = form
   } else {
@@ -65,5 +68,6 @@ export const post = async ({ url, body, formData }: PostProps) => {
   if (response.ok) {
     return data
   }
+
   throw data
 }

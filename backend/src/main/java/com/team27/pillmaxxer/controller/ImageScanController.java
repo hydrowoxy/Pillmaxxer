@@ -4,7 +4,7 @@ import com.team27.pillmaxxer.service.ImageScanService;
 import com.team27.pillmaxxer.dto.ImageScanRequest;
 import com.team27.pillmaxxer.model.Prescription;
 
-
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,7 +23,7 @@ public class ImageScanController {
      * Request body: { "imageFile": (binary image file) }
      */
     @PostMapping("/upload")
-    public Prescription scanImageForText(@RequestBody ImageScanRequest req) {
-        return imageScanService.scanImage(req.getFile());
+    public Prescription scanImageForText(@RequestParam("imageFile") MultipartFile imageFile) {
+        return imageScanService.scanImage(imageFile);
     }
 }

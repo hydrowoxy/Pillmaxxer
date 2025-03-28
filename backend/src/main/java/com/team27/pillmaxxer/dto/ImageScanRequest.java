@@ -4,7 +4,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ImageScanRequest {
     private MultipartFile imageFile;
 
-    public MultipartFile getFile() {
+    public MultipartFile getImageFile() {
         return imageFile;
     }
 }
