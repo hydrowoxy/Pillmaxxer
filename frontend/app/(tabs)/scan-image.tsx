@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Text, Image, StyleSheet, TouchableOpacity } from "react-native"
 import * as ImagePicker from "expo-image-picker"
 import { View } from "react-native"
-import { Link } from "expo-router"
+import { router, Link } from "expo-router"
 import { postImageUpload } from "../../api/image-scan"
 
 export default function App() {
@@ -32,9 +32,8 @@ export default function App() {
   const handleImageUpload = async () => {
     setLoading(true)
     const res = await postImageUpload({ params: { imageFile: image || "" } })
-    // TODO: implement resulting popup/modal/redirect to filled out form ........
     setLoading(false)
-    console.log("success")
+    router.replace("/(tabs)") // TODO: implement redirecting to frontend form and auto-filling as much data as possible from res
   }
 
   return (
