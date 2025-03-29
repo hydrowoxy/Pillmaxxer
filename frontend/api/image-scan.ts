@@ -1,4 +1,4 @@
-import { get, post } from "./util"
+import { get, post, postFiles } from "./fetch"
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL
 
@@ -22,10 +22,9 @@ interface postImageUploadProps {
 }
 
 export const postImageUpload = async ({ params }: postImageUploadProps) => {
-  const data = await post({
+  const data = await postFiles({
     url: `${API_URL}/api/image-scan/upload`,
     body: params,
-    formData: true,
   })
 
   return data
