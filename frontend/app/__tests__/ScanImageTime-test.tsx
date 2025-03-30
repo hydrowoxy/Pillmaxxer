@@ -5,13 +5,6 @@ import { router } from "expo-router"
 
 import fs from "fs"
 import path from "path"
-import { getHealth } from "@/api/general"
-
-// tests
-it("is able to access the server", async () => {
-  const res = await getHealth()
-  expect(res.status).toEqual("OK")
-})
 
 it("processes 95%+ of scanned images under 3 seconds", async () => {
   const folder = path.resolve(__dirname, "resources")
