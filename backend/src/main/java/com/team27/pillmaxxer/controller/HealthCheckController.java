@@ -1,5 +1,8 @@
 package com.team27.pillmaxxer.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -7,7 +10,10 @@ import org.springframework.web.bind.annotation.*;
 public class HealthCheckController {
 
     @GetMapping
-    public String checkHealth() {
-        return "ready to pillmax ;)";
+    public Map<String, String> checkHealth() {
+        Map<String, String> response = new HashMap<>();
+        response.put("status", "OK");
+        response.put("message", "ready to pillmax ;)");
+        return response;
     }
 }

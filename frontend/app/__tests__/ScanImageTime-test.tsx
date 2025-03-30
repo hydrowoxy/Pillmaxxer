@@ -5,6 +5,13 @@ import { router } from "expo-router"
 
 import fs from "fs"
 import path from "path"
+import { getHealth } from "@/api/general"
+
+// tests
+it("is able to access the server", async () => {
+  const res = await getHealth()
+  expect(res.status).toEqual("OK")
+})
 
 it("processes 95%+ of scanned images under 3 seconds", async () => {
   const folder = path.resolve(__dirname, "resources")
@@ -34,6 +41,7 @@ it("processes 95%+ of scanned images under 3 seconds", async () => {
   expect(successRate).toBeGreaterThanOrEqual(95)
 })
 
+// helper
 const executeScanImageTest = async (uri: string) => {
   // mock image upload content
   jest.spyOn(ImagePicker, "requestCameraPermissionsAsync").mockResolvedValue({

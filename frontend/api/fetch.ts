@@ -79,6 +79,8 @@ export const postFiles = async ({ url, body }: PostProps) => {
             type: type,
           } as any)
 
+          console.log(formData)
+
           const response = await fetch(url, {
             method: "POST",
             body: formData,
