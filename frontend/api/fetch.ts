@@ -62,11 +62,36 @@ export const postFiles = async ({ url, body }: PostProps) => {
       let type = match ? `image/${match[1]}` : `image`
 
       try {
-        return await FileSystem.uploadAsync(url, body[key], {
-          uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-          fieldName: key,
-          mimeType: type,
-        })
+        if (FileSystem.FileSystemUploadType) {
+          // mobile version
+          return await FileSystem.uploadAsync(url, body[key], {
+            uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+            fieldName: key,
+            mimeType: type,
+          })
+        } else {
+          // non-mobile version
+          const formData = new FormData()
+
+          formData.append(key, {
+            uri: body[key],
+            name: filename,
+            type: type,
+          } as any)
+
+          const response = await fetch(url, {
+            method: "POST",
+            body: formData,
+          })
+
+          const data = await response.json()
+
+          if (response.ok) {
+            return data
+          }
+
+          throw data
+        }
       } catch (error) {
         console.error("Upload failed:", error)
       }

@@ -1,6 +1,6 @@
 import { get, post, postFiles } from "./fetch"
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL
+const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "localhost:8080" // for FE testing
 
 // THIS IS JUST A DUMMY GET
 interface dummyGetProps {

@@ -19,7 +19,6 @@ export default function ScanImage() {
 
   const takePhoto = async () => {
     if (!hasPermission) {
-      alert("Permission to access camera is required")
       return
     }
 
@@ -32,9 +31,9 @@ export default function ScanImage() {
   const handleImageUpload = async () => {
     setLoading(true)
     const res = await postImageUpload({ params: { imageFile: image || "" } })
-    console.log("image upload success")
+    console.log("image upload success at " + new Date().getTime())
     setLoading(false)
-    router.replace("/(tabs)") // TODO: implement redirecting to frontend form and auto-filling as much data as possible from res
+    router.push("/(tabs)") // TODO: implement redirecting to frontend form and auto-filling as much data as possible from res
   }
 
   return (
@@ -43,9 +42,12 @@ export default function ScanImage() {
 
       {image && <Image source={{ uri: image }} style={styles.image} />}
 
+      {!hasPermission && <Text>Camera permission is required!</Text>}
+
       <TouchableOpacity
         style={[styles.button, loading && styles.buttonDisabled]}
         onPress={takePhoto}
+        testID="take-image-button"
       >
         <Text style={styles.buttonText}>
           {image ? "I want to take a better photo." : "I want to take a photo."}
