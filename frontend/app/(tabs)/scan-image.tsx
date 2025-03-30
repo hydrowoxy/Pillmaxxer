@@ -5,7 +5,7 @@ import { View } from "react-native"
 import { router, Link } from "expo-router"
 import { postImageUpload } from "../../api/image-scan"
 
-export default function App() {
+export default function ScanImage() {
   const [image, setImage] = useState<string | null>(null)
   const [hasPermission, setHasPermission] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(false)
@@ -32,6 +32,7 @@ export default function App() {
   const handleImageUpload = async () => {
     setLoading(true)
     const res = await postImageUpload({ params: { imageFile: image || "" } })
+    console.log("image upload success")
     setLoading(false)
     router.replace("/(tabs)") // TODO: implement redirecting to frontend form and auto-filling as much data as possible from res
   }
@@ -56,6 +57,7 @@ export default function App() {
           style={[styles.button, loading && styles.buttonDisabled]}
           onPress={handleImageUpload}
           disabled={loading}
+          testID="upload-image-button"
         >
           <Text style={styles.buttonText}>I'm happy with this photo!</Text>
         </TouchableOpacity>

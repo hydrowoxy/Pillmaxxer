@@ -61,11 +61,15 @@ export const postFiles = async ({ url, body }: PostProps) => {
       let match = /\.(\w+)$/.exec(filename)
       let type = match ? `image/${match[1]}` : `image`
 
-      return await FileSystem.uploadAsync(url, body[key], {
-        uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-        fieldName: "files",
-        mimeType: type,
-      })
+      try {
+        return await FileSystem.uploadAsync(url, body[key], {
+          uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+          fieldName: key,
+          mimeType: type,
+        })
+      } catch (error) {
+        console.error("Upload failed:", error)
+      }
     }
   }
 }
