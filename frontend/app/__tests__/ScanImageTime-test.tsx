@@ -24,6 +24,7 @@ it("uploads an image and receives a response within 3 seconds", async () => {
     assets: [testImage],
   })
 
+  // mock router reroute
   const routerSpy = jest.spyOn(router, "push").mockImplementation(jest.fn())
 
   // run UI interaction
@@ -32,24 +33,18 @@ it("uploads an image and receives a response within 3 seconds", async () => {
 
   const takeButton = getByTestId("take-image-button")
   await user.press(takeButton)
-
   await waitFor(() => getByTestId("upload-image-button"))
-
   const uploadButton = getByTestId("upload-image-button")
+
+  // this is the sequence we want to capture and calculate the time of
   const startTime: number = new Date().getTime()
-  console.log("well, i did SOMETHING at " + startTime)
-
   await user.press(uploadButton)
-
   await waitFor(() => expect(routerSpy).toHaveBeenCalled())
   const endTime: number = new Date().getTime()
-  console.log("and i closed at " + endTime)
 
-  //   const timeDifference: number = endTime - startTime
-  //   console.log("Time difference: ", timeDifference, "ms")
+  // calculate time difference
+  const timeDifference: number = endTime - startTime
+  console.log("time difference: ", timeDifference, "ms")
 
-  //   expect(timeDifference).toBeGreaterThan(0)
-  //   expect(responseBody.success).toBe(true)
-
-  expect(true)
+  expect(timeDifference).toBeLessThanOrEqual(3000)
 })
