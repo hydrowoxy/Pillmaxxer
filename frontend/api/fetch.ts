@@ -1,4 +1,4 @@
-import { base64ToBlob, isImageUri, localPathToBase64 } from "@/utils/imageUtils"
+import { getFileType, getLocalFileBlob } from "@/utils/files"
 import * as FileSystem from "expo-file-system"
 
 interface GetProps {
@@ -55,40 +55,34 @@ export const post = async ({ url, body }: PostProps) => {
 
 export const postFiles = async ({ url, body }: PostProps) => {
   for (const key of Object.keys(body)) {
-    if (isImageUri(body[key])) {
-      let filename = body[key].split("/").pop()
-      let match = /\.(\w+)$/.exec(filename)
-      let type = match ? `image/${match[1]}` : `image`
+    try {
+      if (FileSystem.FileSystemUploadType) {
+        // production (mobile) version
+        return await FileSystem.uploadAsync(url, body[key], {
+          uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+          fieldName: key,
+          mimeType: getFileType(body[key]),
+        })
+      } else {
+        // testing (local) version
+        const formData = new FormData()
+        formData.append(key, getLocalFileBlob(body[key]))
 
-      try {
-        if (FileSystem.FileSystemUploadType) {
-          // production version
-          return await FileSystem.uploadAsync(url, body[key], {
-            uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-            fieldName: key,
-            mimeType: type,
-          })
-        } else {
-          // testing version
-          const formData = new FormData()
-          formData.append(key, base64ToBlob(localPathToBase64(body[key])))
+        const response = await fetch(url, {
+          method: "POST",
+          body: formData,
+        })
 
-          const response = await fetch(url, {
-            method: "POST",
-            body: formData,
-          })
+        const data = await response.json()
 
-          const data = await response.json()
-
-          if (response.ok) {
-            return data
-          }
-
-          throw data
+        if (response.ok) {
+          return data
         }
-      } catch (error) {
-        console.error("Upload failed:", error)
+
+        throw data
       }
+    } catch (error) {
+      console.error("Upload failed:", error)
     }
   }
 }

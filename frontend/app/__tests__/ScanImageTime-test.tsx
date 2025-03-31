@@ -36,7 +36,7 @@ it("processes 95%+ of scanned images under 3 seconds", async () => {
 
 // helper
 const executeScanImageTest = async (uri: string) => {
-  // mock image upload content
+  // mock image upload content and router
   jest.spyOn(ImagePicker, "requestCameraPermissionsAsync").mockResolvedValue({
     canAskAgain: true,
     expires: "never",
@@ -56,7 +56,6 @@ const executeScanImageTest = async (uri: string) => {
     assets: [testImage],
   })
 
-  // mock router reroute
   const routerSpy = jest.spyOn(router, "push").mockImplementation(jest.fn())
 
   // run UI interaction
@@ -68,13 +67,12 @@ const executeScanImageTest = async (uri: string) => {
   await waitFor(() => getByTestId("upload-image-button"))
   const uploadButton = getByTestId("upload-image-button")
 
-  // this is the sequence we want to capture and calculate the time of
   const startTime: number = new Date().getTime()
   await user.press(uploadButton)
-  await waitFor(() => routerSpy.mock.calls.length > 0)
+
+  await waitFor(() => routerSpy.mock.calls.length > 0) // we know we're done when reroute happens
   const endTime: number = new Date().getTime()
 
-  // calculate time difference
   const timeDifference: number = endTime - startTime
   return timeDifference
 }
