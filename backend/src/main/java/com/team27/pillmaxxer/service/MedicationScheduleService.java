@@ -33,82 +33,85 @@ public class MedicationScheduleService {
     }
 
     /*
-     * This function create the schedule for a given patient
-     * Currently it only generates a schedule for the current date
-     * TODO - This needs to be extended to generate schedules for future dates
+     * This function creates the schedule for a given patient.
+     * It generates schedules for all days for which there are active prescriptions,
+     * either appending to an already existing schedule or creating a new one.
      */
     public MedicationSchedule createPatientSchedule(String patientId) throws ExecutionException, InterruptedException {
-        // Get today's date and generate schedule
-        LocalDate today = LocalDate.now();
-        MedicationSchedule generatedSchedule = generateDailySchedule(patientId, today);
-        log.info("Saving Schedule ... ");
-        return scheduleRepository.save(generatedSchedule);
+        log.info("Generating schedule for patient: " + patientId);
 
-        /*
-         * TODO - Generate schedules for future dates in the prescription range
-         * The current medicationSchedule model only supports a single day's schedule
-         */
-    }
-
-    /*
-     * This function generates a daily schedule for a given patient and date
-     * First it retrieves all active prescriptions for the patient
-     * Then it checks if a schedule already exists for the given date and patient
-     * If a schedule does not exist, it generates a new schedule
-     * If a schedule does exist, it first clears the existing doses and then
-     * generates a new schedule
-     * 
-     * For all active prescriptions, it generates the times of day for each
-     * prescription based on the frequency
-     * Each time slot is mapped to a list of medication doses
-     * this map is then converted to a list of scheduled doses and saved in the
-     * schedule
-     */
-    public MedicationSchedule generateDailySchedule(String patientId, LocalDate date)
-            throws ExecutionException, InterruptedException {
         // Get active prescriptions for the patient
-        log.info("Finding active prescriptions for patient: " + patientId);
         List<Prescription> prescriptions = prescriptionRepository.findActiveByPatientId(patientId);
-
         log.info("Found " + prescriptions.size() + " active prescriptions");
 
-        log.info("Generating schedule for patient: " + patientId + " on " + date);
-        // Generate and save the schedule
-        MedicationSchedule schedule = scheduleRepository.findByPatientAndDate(patientId, date)
-                .orElse(new MedicationSchedule());
-        schedule.setPatientId(patientId);
-        schedule.setDate(date);
+        // Determine the range of dates to generate schedules for
+        List<LocalDate> dates = prescriptions.stream()
+                .flatMap(p -> p.getStartDate().datesUntil(p.getEndDate().plusDays(1)))
+                .distinct()
+                .collect(Collectors.toList());
 
-        if (schedule.getScheduledDoses() != null) {
-            schedule.getScheduledDoses().clear();
+        log.info("Range of dates: " + dates);
+
+        MedicationSchedule schedule = scheduleRepository.findByPatientId(patientId);
+        log.info("Found schedule: " + schedule);
+
+        if (schedule == null) {
+            schedule = new MedicationSchedule();
+            schedule.setId(patientId + "_schedule");
+        }
+        schedule.setPatientId(patientId);
+
+        // Ensure dailySchedules is initialized if it's null
+        if (schedule.getDailySchedules() == null) {
+            schedule.setDailySchedules(new ArrayList<>());
         }
 
-        Map<LocalTime, List<MedicationSchedule.MedicationDose>> timeSlots = new TreeMap<>();
+        for (LocalDate date : dates) {
+            // Find or create the DailySchedule for the current date
+            MedicationSchedule.DailySchedule dailySchedule = schedule.getDailySchedules().stream()
+                    .filter(ds -> ds.getDate().equals(date))
+                    .findFirst()
+                    .orElse(new MedicationSchedule.DailySchedule(date, new ArrayList<>()));
 
-        prescriptions.stream()
-                .filter(p -> isActiveOnDate(p, date))
-                .forEach(p -> generateTimes(p.getFrequency()).forEach(time -> {
-                    var dose = new MedicationSchedule.MedicationDose(
-                            p.getMedicationId(),
-                            p.getMedicationName(),
-                            p.getDosage(),
-                            p.getInstructions(),
-                            p.getId());
-                    timeSlots.computeIfAbsent(time, k -> new ArrayList<>()).add(dose);
-                }));
+            // If the daily schedule was not found in the existing list, add it
+            if (!schedule.getDailySchedules().contains(dailySchedule)) {
+                schedule.getDailySchedules().add(dailySchedule);
+            }
 
-        log.info("Generated " + timeSlots.size() + " time slots");
-        schedule.setScheduledDoses(
-                timeSlots.entrySet().stream()
-                        .map(e -> new MedicationSchedule.ScheduledDose(e.getKey(), e.getValue()))
-                        .collect(Collectors.toList()));
+            // Clear existing scheduled doses for the current date
+            if (dailySchedule.getScheduledDoses() != null) {
+                dailySchedule.getScheduledDoses().clear();
+            }
 
-        return schedule;
+            Map<LocalTime, List<MedicationSchedule.MedicationDose>> timeSlots = new TreeMap<>();
+
+            // filter for active prescriptions and generate times for each
+            // prescription, a make a medication dose for each time slot
+            prescriptions.stream()
+                    .filter(p -> isActiveOnDate(p, date))
+                    .forEach(p -> generateTimes(p.getFrequency()).forEach(time -> {
+                        var dose = new MedicationSchedule.MedicationDose(
+                                p.getMedicationId(),
+                                p.getMedicationName(),
+                                p.getDosage(),
+                                p.getInstructions(),
+                                p.getId());
+                        timeSlots.computeIfAbsent(time, k -> new ArrayList<>()).add(dose);
+                    }));
+
+            log.info("Generated " + timeSlots.size() + " time slots for date: " + date);
+            dailySchedule.setScheduledDoses(
+                    timeSlots.entrySet().stream()
+                            .map(e -> new MedicationSchedule.ScheduledDose(e.getKey(), e.getValue()))
+                            .collect(Collectors.toList()));
+        }
+
+        return scheduleRepository.save(schedule); // Save the updated schedule, including the daily schedules
     }
 
     /*
      * This helper function makes sure that a prescription is active and that the
-     * date is within the prescription range
+     * date is within the prescription range.
      */
     private boolean isActiveOnDate(Prescription p, LocalDate date) {
         return p.isActive() &&
@@ -117,8 +120,9 @@ public class MedicationScheduleService {
     }
 
     /*
-     * This helper function generates the times of day for a given frequency
-     * The times are hardcoded for now, but could be made more dynamic in the future
+     * This helper function generates the times of day for a given frequency.
+     * The times are hardcoded for now, but could be made more dynamic in the
+     * future.
      */
     private List<LocalTime> generateTimes(String frequency) {
         return switch (frequency.toLowerCase()) {
@@ -132,11 +136,41 @@ public class MedicationScheduleService {
     }
 
     /*
-     * This function retrieves the schedule for a given patient and date
-     * If no schedule exists for the given date, an empty optional is returned
+     * This function retrieves the schedule for a given patient and date.
+     * If no schedule exists for the given date, an empty optional is returned.
      */
-    public Optional<MedicationSchedule> getScheduleForDate(String patientId, LocalDate date)
+    public Optional<MedicationSchedule.DailySchedule> getScheduleForDate(String patientId, LocalDate date)
             throws ExecutionException, InterruptedException {
-        return scheduleRepository.findByPatientAndDate(patientId, date);
+        MedicationSchedule foundSchedule = scheduleRepository.findByPatientId(patientId);
+        if (foundSchedule == null) {
+            return Optional.empty();
+        }
+
+        return foundSchedule.getDailySchedules().stream()
+                .filter(ds -> ds.getDate().equals(date))
+                .findFirst();
+    }
+
+    /*
+     * This function retrieves the schedule for a given patient and date range.
+     * If no schedule exists for the given date range, an empty optional is
+     * returned.
+     */
+    public Optional<MedicationSchedule> getScheduleForDateRange(String patientId, LocalDate startDate,
+            LocalDate endDate) throws ExecutionException, InterruptedException {
+        MedicationSchedule foundSchedule = scheduleRepository.findByPatientId(patientId);
+
+        if (foundSchedule == null) {
+            return Optional.empty();
+        }
+
+        List<MedicationSchedule.DailySchedule> filteredSchedules = foundSchedule.getDailySchedules().stream()
+                .filter(ds -> !ds.getDate().isBefore(startDate) && !ds.getDate().isAfter(endDate))
+                .collect(Collectors.toList());
+
+        foundSchedule.setDailySchedules(filteredSchedules);
+
+        return Optional.of(foundSchedule);
+
     }
 }
