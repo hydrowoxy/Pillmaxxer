@@ -1,14 +1,20 @@
 package com.team27.pillmaxxer.service;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockMultipartFile;
 
 import com.team27.pillmaxxer.model.Prescription;
 import com.team27.pillmaxxer.service.ImageScanService;
-import org.springframework.beans.factory.annotation.Autowired;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 class ImageScanServiceTest {
@@ -16,10 +22,11 @@ class ImageScanServiceTest {
     private ImageScanService imageScanService;
 
     @Test
-    void testExtractText() {
-        String imgUrl = "https://builtin.com/sites/www.builtin.com/files/styles/ckeditor_optimize/public/inline-images/5_python-ocr.jpg";
-        String extractedText = imageScanService.extractText(imgUrl);
+    void testExtractText() throws IOException {
+        InputStream imageStream = new FileInputStream(new File("src/test/java/com/team27/pillmaxxer/resources/ocr-test.jpg"));
+        MockMultipartFile mockImageUpload = new MockMultipartFile("imageFile", "ocr-test.jpg", "image/jpeg", imageStream.readAllBytes());
 
+        String extractedText = imageScanService.extractText(mockImageUpload);
         assertEquals("Tesseract sample", extractedText);
     }
 
