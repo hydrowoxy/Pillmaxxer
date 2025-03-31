@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -25,101 +25,100 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class MedicationScheduleServiceTest {
 
-    @Mock
-    private PrescriptionRepository prescriptionRepository;
+        @Mock
+        private PrescriptionRepository prescriptionRepository;
 
-    @Mock
-    private MedicationScheduleRepository scheduleRepository;
+        @Mock
+        private MedicationScheduleRepository scheduleRepository;
 
-    @InjectMocks
-    private MedicationScheduleService medicationScheduleService;
+        @InjectMocks
+        private MedicationScheduleService medicationScheduleService;
 
-    private String patientId;
-    private LocalDate testDate;
+        private String patientId;
+        private LocalDate testDate;
+        private List<Prescription> mockPrescriptions;
 
-    @BeforeEach
-    public void setUp() {
-        patientId = "patient123";
-        testDate = LocalDate.now();
-    }
+        @BeforeEach
+        public void setUp() {
+                patientId = "patient123";
+                testDate = LocalDate.now();
+                mockPrescriptions = TestUtil.createMockPrescriptions(patientId, testDate);
+        }
 
-    @Test
-    public void testPatientScheduleCreationFromPrescriptions() throws ExecutionException, InterruptedException {
-        // Prepare mock prescriptions
-        List<Prescription> mockPrescriptions = TestUtil.createMockPrescriptions(patientId, testDate);
+        @Test
+        public void testPatientScheduleCreationFromPrescriptions() throws ExecutionException, InterruptedException {
+                // Mock repository behaviors
+                when(prescriptionRepository.findActiveByPatientId(patientId))
+                                .thenReturn(mockPrescriptions);
 
-        // Mock repository behaviors
-        when(prescriptionRepository.findActiveByPatientId(patientId))
-                .thenReturn(mockPrescriptions);
+                when(scheduleRepository.findByPatientId(patientId))
+                                .thenReturn(null); // Simulate no existing schedule
 
-        when(scheduleRepository.findByPatientAndDate(patientId, testDate))
-                .thenReturn(Optional.empty());
+                // returns the first argument (the medication schedule)
+                when(scheduleRepository.save(any(MedicationSchedule.class)))
+                                .thenAnswer(invocation -> invocation.getArgument(0));
 
-        // returns the first argument (the medication schedule)
-        when(scheduleRepository.save(any(MedicationSchedule.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+                // Execute the method
+                MedicationSchedule schedule = medicationScheduleService.createPatientSchedule(patientId);
 
-        // Execute the method
-        MedicationSchedule schedule = medicationScheduleService.createPatientSchedule(patientId);
+                // Verify interactions and assertions
+                verify(prescriptionRepository).findActiveByPatientId(patientId);
+                verify(scheduleRepository).save(any(MedicationSchedule.class));
 
-        // Verify interactions and assertions
-        verify(prescriptionRepository).findActiveByPatientId(patientId);
-        verify(scheduleRepository).save(any(MedicationSchedule.class));
+                assertNotNull(schedule);
+                assertEquals(patientId, schedule.getPatientId());
+                assertNotNull(schedule.getDailySchedules());
+                assertFalse(schedule.getDailySchedules().isEmpty());
+                assertTrue(schedule.getDailySchedules().stream().anyMatch(ds -> ds.getDate().equals(testDate)));
+                assertEquals(2, schedule.getDailySchedules().get(0).getScheduledDoses().size());
+        }
 
-        assertNotNull(schedule);
-        assertEquals(patientId, schedule.getPatientId());
-        assertEquals(testDate, schedule.getDate());
-        assertNotNull(schedule.getScheduledDoses());
-        assertFalse(schedule.getScheduledDoses().isEmpty());
-        assertEquals(2, schedule.getScheduledDoses().size());
-    }
+        @Test
+        public void testGetScheduleForDate() throws ExecutionException, InterruptedException {
+                MedicationSchedule mockSchedule = new MedicationSchedule();
+                mockSchedule.setPatientId(patientId);
+                mockSchedule.setDailySchedules(
+                                List.of(new MedicationSchedule.DailySchedule(testDate, new ArrayList<>())));
 
-    @Test
-    public void testGenerateDailySchedule() throws ExecutionException, InterruptedException {
-        // Prepare mock prescriptions
-        List<Prescription> mockPrescriptions = TestUtil.createMockPrescriptions(patientId, testDate);
+                // Mock repository behavior
+                when(scheduleRepository.findByPatientId(patientId))
+                                .thenReturn(mockSchedule);
 
-        // Mock repository behaviors
-        when(prescriptionRepository.findActiveByPatientId(patientId))
-                .thenReturn(mockPrescriptions);
+                // Execute the method
+                Optional<MedicationSchedule.DailySchedule> dailySchedule = medicationScheduleService
+                                .getScheduleForDate(patientId, testDate);
 
-        when(scheduleRepository.findByPatientAndDate(patientId, testDate))
-                .thenReturn(Optional.empty());
+                // Verify assertions
+                assertTrue(dailySchedule.isPresent());
+                assertEquals(testDate, dailySchedule.get().getDate());
+        }
 
-        // Execute the method
-        MedicationSchedule schedule = medicationScheduleService.generateDailySchedule(patientId, testDate);
+        @Test
+        public void testGetScheduleForDateRange() throws ExecutionException, InterruptedException {
+                LocalDate startDate = testDate.minusDays(1);
+                LocalDate endDate = testDate.plusDays(1);
 
-        // Verify assertions
-        assertNotNull(schedule);
-        assertEquals(patientId, schedule.getPatientId());
-        assertEquals(testDate, schedule.getDate());
+                MedicationSchedule mockSchedule = new MedicationSchedule();
+                mockSchedule.setPatientId(patientId);
+                mockSchedule.setDailySchedules(List.of(
+                                new MedicationSchedule.DailySchedule(startDate, new ArrayList<>()),
+                                new MedicationSchedule.DailySchedule(testDate, new ArrayList<>()),
+                                new MedicationSchedule.DailySchedule(endDate, new ArrayList<>()),
+                                new MedicationSchedule.DailySchedule(endDate.plusDays(1), new ArrayList<>())));
 
-        // Verify schedule generation for different frequencies
-        assertEquals(2, schedule.getScheduledDoses().size());
+                // Mock repository behavior
+                when(scheduleRepository.findByPatientId(patientId))
+                                .thenReturn(mockSchedule);
 
-        // Verify time slots
-        assertTrue(schedule.getScheduledDoses().stream()
-                .anyMatch(dose -> dose.getTimeOfDay().equals(LocalTime.of(9, 0))));
-        assertTrue(schedule.getScheduledDoses().stream()
-                .anyMatch(dose -> dose.getTimeOfDay().equals(LocalTime.of(21, 0))));
-    }
+                // Execute the method
+                Optional<MedicationSchedule> schedule = medicationScheduleService.getScheduleForDateRange(patientId,
+                                startDate, endDate);
 
-    @Test
-    public void testGetScheduleForDate() throws ExecutionException, InterruptedException {
-        MedicationSchedule mockSchedule = new MedicationSchedule();
-        mockSchedule.setPatientId(patientId);
-        mockSchedule.setDate(testDate);
-
-        // Mock repository behavior
-        when(scheduleRepository.findByPatientAndDate(patientId, testDate))
-                .thenReturn(Optional.of(mockSchedule));
-
-        // Execute the method
-        Optional<MedicationSchedule> schedule = medicationScheduleService.getScheduleForDate(patientId, testDate);
-
-        // Verify assertions
-        assertTrue(schedule.isPresent());
-        assertEquals(patientId, schedule.get().getPatientId());
-        assertEquals(testDate, schedule.get().getDate());
-    }
+                // Verify assertions
+                assertTrue(schedule.isPresent());
+                assertNotNull(schedule.get().getDailySchedules());
+                assertEquals(3, schedule.get().getDailySchedules().size());
+                assertTrue(schedule.get().getDailySchedules().stream()
+                                .allMatch(ds -> !ds.getDate().isBefore(startDate) && !ds.getDate().isAfter(endDate)));
+        }
 }

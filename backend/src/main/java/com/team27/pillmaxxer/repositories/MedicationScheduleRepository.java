@@ -7,7 +7,6 @@ import com.team27.pillmaxxer.dto.MedicationScheduleDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -93,29 +92,15 @@ public class MedicationScheduleRepository implements FirestoreRepository<Medicat
                 .get();
     }
 
-    // Custom query methods
-    public Optional<MedicationSchedule> findByPatientAndDate(String patientId, LocalDate date)
-            throws ExecutionException, InterruptedException {
-        Query query = firestore.collection(COLLECTION_NAME)
-                .whereEqualTo("patientId", patientId)
-                .whereEqualTo("date", date.toString())
-                .limit(1);
-
-        List<MedicationSchedule> results = findByQuery(query);
-        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
-    }
-
-    public List<MedicationSchedule> findByPatientId(String patientId) throws ExecutionException, InterruptedException {
+    public MedicationSchedule findByPatientId(String patientId) throws ExecutionException, InterruptedException {
         Query query = firestore.collection(COLLECTION_NAME)
                 .whereEqualTo("patientId", patientId);
-        return findByQuery(query);
-    }
 
-    public List<MedicationSchedule> findByDateRange(LocalDate startDate, LocalDate endDate)
-            throws ExecutionException, InterruptedException {
-        Query query = firestore.collection(COLLECTION_NAME)
-                .whereGreaterThanOrEqualTo("date", startDate.toString())
-                .whereLessThanOrEqualTo("date", endDate.toString());
-        return findByQuery(query);
+        List<MedicationSchedule> schedules = findByQuery(query);
+        if (schedules.isEmpty()) {
+            return null;
+        }
+
+        return schedules.get(0);
     }
 }

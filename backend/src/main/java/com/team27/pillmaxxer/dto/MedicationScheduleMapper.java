@@ -19,11 +19,11 @@ public class MedicationScheduleMapper implements FirestoreMapper<MedicationSched
         MedicationScheduleDto dto = new MedicationScheduleDto();
         dto.setId(model.getId());
         dto.setPatientId(model.getPatientId());
-        dto.setDate(model.getDate());
-
-        dto.setScheduledDoses(model.getScheduledDoses().stream()
-                .map(MedicationScheduleDto.ScheduledDoseDto::fromDomain)
-                .collect(Collectors.toList()));
+        if (model.getDailySchedules() != null) {
+            dto.setDailySchedules(model.getDailySchedules().stream()
+                    .map(MedicationScheduleDto.DailyScheduleDto::fromDomain)
+                    .collect(Collectors.toList()));
+        }
 
         return dto;
     }
@@ -33,20 +33,25 @@ public class MedicationScheduleMapper implements FirestoreMapper<MedicationSched
         MedicationSchedule model = new MedicationSchedule();
         model.setId(dto.getId());
         model.setPatientId(dto.getPatientId());
-        model.setDate(dto.getDate());
 
-        model.setScheduledDoses(dto.getScheduledDoses().stream()
-                .map(sd -> new MedicationSchedule.ScheduledDose(
-                        LocalTime.parse(sd.getTimeOfDay()),
-                        sd.getMedications().stream()
-                                .map(m -> new MedicationSchedule.MedicationDose(
-                                        m.getMedicationId(),
-                                        m.getMedicationName(),
-                                        m.getDosage(),
-                                        m.getInstructions(),
-                                        m.getPrescriptionId()))
-                                .collect(Collectors.toList())))
-                .collect(Collectors.toList()));
+        if (dto.getDailySchedules() != null) {
+            model.setDailySchedules(dto.getDailySchedules().stream()
+                    .map(ds -> new MedicationSchedule.DailySchedule(
+                            ds.getDate(),
+                            ds.getScheduledDoses().stream()
+                                    .map(sd -> new MedicationSchedule.ScheduledDose(
+                                            LocalTime.parse(sd.getTimeOfDay()),
+                                            sd.getMedications().stream()
+                                                    .map(m -> new MedicationSchedule.MedicationDose(
+                                                            m.getMedicationId(),
+                                                            m.getMedicationName(),
+                                                            m.getDosage(),
+                                                            m.getInstructions(),
+                                                            m.getPrescriptionId()))
+                                                    .collect(Collectors.toList())))
+                                    .collect(Collectors.toList())))
+                    .collect(Collectors.toList()));
+        }
 
         return model;
     }

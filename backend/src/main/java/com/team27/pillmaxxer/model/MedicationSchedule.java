@@ -19,8 +19,14 @@ import lombok.NoArgsConstructor;
 public class MedicationSchedule {
     private String id;
     private String patientId;
-    private LocalDate date;
-    private List<ScheduledDose> scheduledDoses;
+    private List<DailySchedule> dailySchedules;
+
+    @Data
+    @AllArgsConstructor
+    public static class DailySchedule {
+        private LocalDate date;
+        private List<ScheduledDose> scheduledDoses;
+    }
 
     @Data
     @AllArgsConstructor

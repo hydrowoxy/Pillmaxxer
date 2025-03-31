@@ -39,7 +39,7 @@ public class MedicationScheduleController {
      * @return Schedule with 200 OK, 404 if not found, or 500 on error
      */
     @GetMapping
-    public ResponseEntity<?> getScheduleForDate(
+    public ResponseEntity<MedicationSchedule.DailySchedule> getScheduleForDate(
             @PathVariable String patientId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
@@ -72,6 +72,32 @@ public class MedicationScheduleController {
             MedicationSchedule schedule = scheduleService.createPatientSchedule(patientId);
             log.info("Schedule created successfully for: " + patientId);
             return ResponseEntity.ok(schedule);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * Retrieves a patient's medication schedule for a specific date range.
+     * 
+     * Example request: GET /api/patients/patient1/schedules/2025-03-26/2025-03-30
+     * 
+     * @param patientId The patient ID to retrieve the schedule for
+     * @param startDate The start date of the range
+     * @param endDate   The end date of the range
+     * @return Schedule with 200 OK, 404 if not found, or 500 on error
+     */
+    @GetMapping("/{startDate}/{endDate}")
+    public ResponseEntity<MedicationSchedule> getScheduleForDateRange(
+            @PathVariable String patientId,
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        try {
+
+            return scheduleService.getScheduleForDateRange(patientId, startDate, endDate)
+                    .map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
