@@ -32,6 +32,7 @@ export default function ScanImage() {
     setLoading(true)
     const res = await postImageUpload({ params: { imageFile: image || "" } })
     setLoading(false)
+    console.log("done!")
     router.push("/(tabs)") // TODO: implement redirecting to frontend form and auto-filling as much data as possible from res
   }
 
