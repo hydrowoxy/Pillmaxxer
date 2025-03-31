@@ -1,4 +1,4 @@
-import { isImageUri } from "@/utils/imageUtils"
+import { base64ToBlob, isImageUri, localPathToBase64 } from "@/utils/imageUtils"
 import * as FileSystem from "expo-file-system"
 
 interface GetProps {
@@ -8,14 +8,14 @@ interface GetProps {
 }
 
 export const get = async ({ url, params }: GetProps) => {
+  const headers: Record<string, string> = { "Content-Type": "application/json" }
+
   if (params) {
     url += "?" + new URLSearchParams(params).toString()
   }
 
   const response = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     method: "GET",
   })
 
@@ -36,7 +36,6 @@ interface PostProps {
 
 export const post = async ({ url, body }: PostProps) => {
   const headers: Record<string, string> = { "Content-Type": "application/json" }
-
   const requestBody = JSON.stringify(body)
 
   const response = await fetch(url, {
@@ -63,23 +62,16 @@ export const postFiles = async ({ url, body }: PostProps) => {
 
       try {
         if (FileSystem.FileSystemUploadType) {
-          // mobile version
+          // production version
           return await FileSystem.uploadAsync(url, body[key], {
             uploadType: FileSystem.FileSystemUploadType.MULTIPART,
             fieldName: key,
             mimeType: type,
           })
         } else {
-          // non-mobile version
+          // testing version
           const formData = new FormData()
-
-          formData.append(key, {
-            uri: body[key],
-            name: filename,
-            type: type,
-          } as any)
-
-          console.log(formData)
+          formData.append(key, base64ToBlob(localPathToBase64(body[key])))
 
           const response = await fetch(url, {
             method: "POST",

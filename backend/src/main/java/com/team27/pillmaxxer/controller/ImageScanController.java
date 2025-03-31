@@ -24,7 +24,6 @@ public class ImageScanController {
      */
     @PostMapping("/upload")
     public Prescription scanImageForText(@RequestParam("imageFile") MultipartFile imageFile) {
-        System.out.println("Received another request for " + imageFile);
         return imageScanService.scanImage(imageFile);
     }
 }

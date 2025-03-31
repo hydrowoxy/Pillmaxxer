@@ -7,28 +7,31 @@ import fs from "fs"
 import path from "path"
 
 it("processes 95%+ of scanned images under 3 seconds", async () => {
-  const folder = path.resolve(__dirname, "resources")
-  const uris: string[] = []
+  // allot a longer time for this test, since multiple files are being processed
+  jest.setTimeout(30000)
 
-  // locate test images and convert to local URIs
+  // locate local test images
+  const folder = path.resolve(__dirname, "resources")
+  const paths: string[] = []
+
   fs.readdirSync(folder).forEach((file: string) => {
     const img = path.join(folder, file)
-    const fileUri = "file:///" + path.resolve(img)
-    uris.push(fileUri.replace(/\\/g, "/"))
+    const relativePath = path.relative(process.cwd(), img).replace(/\\/g, "/")
+    paths.push(relativePath)
   })
 
   // execute on each test image
   const limit = 3000
   let successes = 0
 
-  for (const uri of uris) {
+  for (const uri of paths) {
     const time = await executeScanImageTest(uri)
     if (time <= limit) successes += 1
     console.log(`Time taken for image ${uri}: ${time}ms`)
   }
 
   // calculate success rate
-  const successRate = (successes / uris.length) * 100
+  const successRate = (successes / paths.length) * 100
   console.log(`Success rate: ${successRate}%`)
 
   expect(successRate).toBeGreaterThanOrEqual(95)
