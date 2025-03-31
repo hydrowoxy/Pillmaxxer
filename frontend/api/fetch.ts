@@ -1,4 +1,4 @@
-import { isImageUri } from "@/utils/imageUtils"
+import { getFileType, getLocalFileBlob } from "@/utils/files"
 import * as FileSystem from "expo-file-system"
 
 interface GetProps {
@@ -8,14 +8,14 @@ interface GetProps {
 }
 
 export const get = async ({ url, params }: GetProps) => {
+  const headers: Record<string, string> = { "Content-Type": "application/json" }
+
   if (params) {
     url += "?" + new URLSearchParams(params).toString()
   }
 
   const response = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     method: "GET",
   })
 
@@ -36,7 +36,6 @@ interface PostProps {
 
 export const post = async ({ url, body }: PostProps) => {
   const headers: Record<string, string> = { "Content-Type": "application/json" }
-
   const requestBody = JSON.stringify(body)
 
   const response = await fetch(url, {
@@ -56,16 +55,34 @@ export const post = async ({ url, body }: PostProps) => {
 
 export const postFiles = async ({ url, body }: PostProps) => {
   for (const key of Object.keys(body)) {
-    if (isImageUri(body[key])) {
-      let filename = body[key].split("/").pop()
-      let match = /\.(\w+)$/.exec(filename)
-      let type = match ? `image/${match[1]}` : `image`
+    try {
+      if (FileSystem.FileSystemUploadType) {
+        // production (mobile) version
+        return await FileSystem.uploadAsync(url, body[key], {
+          uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+          fieldName: key,
+          mimeType: getFileType(body[key]),
+        })
+      } else {
+        // testing (local) version
+        const formData = new FormData()
+        formData.append(key, getLocalFileBlob(body[key]))
 
-      return await FileSystem.uploadAsync(url, body[key], {
-        uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-        fieldName: "files",
-        mimeType: type,
-      })
+        const response = await fetch(url, {
+          method: "POST",
+          body: formData,
+        })
+
+        const data = await response.json()
+
+        if (response.ok) {
+          return data
+        }
+
+        throw data
+      }
+    } catch (error) {
+      console.error("Upload failed:", error)
     }
   }
 }

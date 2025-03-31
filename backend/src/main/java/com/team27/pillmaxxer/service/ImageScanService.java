@@ -14,6 +14,13 @@ import com.team27.pillmaxxer.model.Prescription;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.awt.image.BufferedImage;
@@ -26,6 +33,7 @@ public class ImageScanService {
     public Prescription scanImage(MultipartFile file) {
         String rawText = extractText(file);
         Prescription prescription = decipherText(rawText);
+        System.out.println("Image scan success");
         return prescription;
     }
 
@@ -33,15 +41,30 @@ public class ImageScanService {
         ITesseract tesseract = new Tesseract();
         tesseract.setLanguage("eng");
 
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        Callable<String> task = () -> {
+            try {
+                BufferedImage bufferedImg = ImageIO.read(file.getInputStream());
+                if (bufferedImg == null) throw new IOException("Failed to load image");
+                return tesseract.doOCR(bufferedImg).trim(); 
+            } catch (IOException e) {
+                throw new RuntimeException("Error loading image: ", e);
+            } catch (TesseractException e) {
+                throw new RuntimeException("Error performing OCR on image: ", e);
+            } catch (Exception e) {
+                throw new RuntimeException("Unexpected error: ", e);
+            }
+        };
+
         try {
-            BufferedImage bufferedImg = ImageIO.read(file.getInputStream());
-            if (bufferedImg == null) throw new IOException("Failed to load image");
-            String result = tesseract.doOCR(bufferedImg);
-            return result.trim();
-        } catch (IOException e) {
-            throw new RuntimeException("Error loading image: ", e);
-        } catch (TesseractException e) {
-            throw new RuntimeException("Error performing OCR on image: ", e);
+            Future<String> future = scheduler.submit(task);
+            return future.get(5, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            throw new RuntimeException("OCR process timed out after 5 seconds", e);
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException("Error executing OCR task: ", e);
+        } finally {
+            scheduler.shutdown();
         }
     }
 

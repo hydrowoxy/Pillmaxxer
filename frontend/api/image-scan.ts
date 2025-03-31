@@ -1,19 +1,6 @@
-import { get, post, postFiles } from "./fetch"
+import { postFiles } from "./fetch"
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL
-
-// THIS IS JUST A DUMMY GET
-interface dummyGetProps {
-  params: { postId?: string }
-}
-
-export const dummyGet = async ({ params }: dummyGetProps) => {
-  const data = await get({
-    url: "https://jsonplaceholder.typicode.com/comments",
-    params: params,
-  })
-  return data
-}
+const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:8080" // for testing, when env not loaded
 
 interface postImageUploadProps {
   params: {
@@ -26,6 +13,5 @@ export const postImageUpload = async ({ params }: postImageUploadProps) => {
     url: `${API_URL}/api/image-scan/upload`,
     body: params,
   })
-
   return data
 }
