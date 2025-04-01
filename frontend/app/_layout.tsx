@@ -1,5 +1,5 @@
 import { AuthProvider } from "@/context/auth-context";
-import { ReminderProvider } from "@/context/reminder-context";
+import { ReminderProvider } from "../context/reminder-context";
 import { Slot } from "expo-router";
 
 export default function Root() {
