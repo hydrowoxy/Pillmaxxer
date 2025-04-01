@@ -1,7 +1,6 @@
 package com.team27.pillmaxxer.service;
 
 import org.springframework.stereotype.Service;
-
 import jakarta.annotation.PostConstruct;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -14,7 +13,7 @@ public class DrugInteractionService_DDInter {
     private final Set<String> seenPairs = new HashSet<>();
     private final List<Interaction> allInteractions = new ArrayList<>();
 
-    // Directory of your CSV files (in /resources/)
+    // Directory of your CSV files inside /resources/DrugDatabase
     private final String[] fileNames = {
             "ddinter_downloads_code_A.csv",
             "ddinter_downloads_code_B.csv",
@@ -47,33 +46,42 @@ public class DrugInteractionService_DDInter {
     @PostConstruct
     public void loadAllCSVs() {
         for (String fileName : fileNames) {
+            String fullPath = "DrugDatabase/" + fileName;
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                    Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(fileName)),
+                    Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(fullPath)),
                     StandardCharsets.UTF_8))) {
 
+
                 String line;
+                int count = 0;
                 reader.readLine(); // Skip header
                 while ((line = reader.readLine()) != null) {
                     String[] tokens = line.split(",", -1);
                     if (tokens.length >= 5) {
-                        String a = tokens[1].trim().toLowerCase();
-                        String b = tokens[3].trim().toLowerCase();
-                        String level = tokens[4].trim();
+                        String a = tokens[1].trim().toLowerCase();  // Drug_A
+                        String b = tokens[3].trim().toLowerCase();  // Drug_B
+                        String level = tokens[4].trim();            // Level
 
-                        // Normalize pair key to avoid duplicates
-                        String pairKey = String.join("::", a.compareTo(b) <= 0 ? a : b, a.compareTo(b) <= 0 ? b : a);
+                        String pairKey = String.join("::",
+                                a.compareTo(b) <= 0 ? a : b,
+                                a.compareTo(b) <= 0 ? b : a);
 
                         if (!seenPairs.contains(pairKey)) {
                             seenPairs.add(pairKey);
                             allInteractions.add(new Interaction(a, b, level));
+                            count++;
                         }
                     }
                 }
+
+
             } catch (Exception e) {
                 System.err.println("Error loading file: " + fileName);
                 e.printStackTrace();
             }
         }
+
+
     }
 
     public Optional<String> getInteractionLevel(String drug1, String drug2) {
