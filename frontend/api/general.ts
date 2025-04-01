@@ -9,9 +9,9 @@ export const getHealth = async () => {
   return data
 }
 
-export const getPatientData = async (patientId: string) => {
+export const getPatientData = async (userId: string) => {
   const data = await get({
-    url: `${API_URL}/api/patients/${patientId}`,
+    url: `${API_URL}/api/patients/${userId}`,
   })
   return data
 }
@@ -29,6 +29,13 @@ export const registerPatient = async (patientData: {
     body: patientData,
   })
   return data
+};
+
+export const getReminder = async (userId: string) => {
+  const data = await get({
+    url: `${API_URL}/api/patients/${userId}/reminders`,
+  });
+  return data;
 };
 
 

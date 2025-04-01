@@ -4,11 +4,10 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
-import {
-  login,
-  logout,
-} from "@/services/firebase-service";
+import { login, logout } from "@/services/firebase-service";
+import { registerPatient } from "@/api/general";
 import { auth } from "@/services/firebase-config";
+import { Patient } from "@/types/Patient"; // Import your Patient type
 
 /**
  * Authentication context interface defining available methods and state
@@ -21,6 +20,9 @@ interface AuthContextType {
   user: User | null;
   /** Loading state for authentication operations */
   isLoading: boolean;
+  userId: string | null; // Store userId directly
+  setUserId: (userId: string | null) => void;
+  registerPatient: (patientData: any) => Promise<Patient | null>;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -37,7 +39,7 @@ export function useAuth(): AuthContextType {
       throw new Error("useAuth must be wrapped in a <AuthProvider />");
     }
   }
-  
+
   return value;
 }
 
@@ -45,9 +47,9 @@ export function useAuth(): AuthContextType {
  * SessionProvider component that manages authentication state
  */
 export function AuthProvider(props: { children: React.ReactNode }) {
-
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null); // Store userId directly
 
   /**
    * Sets up Firebase authentication state listener
@@ -56,6 +58,12 @@ export function AuthProvider(props: { children: React.ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
+      if (user) {
+        setUserId(user.uid); // Set userId when user logs in
+      } else {
+        setUserId(null); // Clear userId when user logs out
+      }
+      setIsLoading(false);
     });
 
     // Cleanup subscription on unmount
@@ -68,7 +76,10 @@ export function AuthProvider(props: { children: React.ReactNode }) {
   const handleSignIn = async (email: string, password: string) => {
     try {
       const response = await login(email, password);
-      return response?.user;
+      if (response && response.user) {
+        return response.user;
+      }
+      return undefined;
     } catch (error) {
       console.error("[handleSignIn error] ==>", error);
       return undefined;
@@ -83,8 +94,20 @@ export function AuthProvider(props: { children: React.ReactNode }) {
     try {
       await logout();
       setUser(null);
+      setUserId(null); // Clear userId on logout
     } catch (error) {
       console.error("[handleSignOut error] ==>", error);
+    }
+  };
+
+  const handleRegisterPatient = async (patientData: any) => {
+    try {
+      const patient: Patient = await registerPatient(patientData);
+      setUserId(patient.userId); // Set userId after registration
+      return patient;
+    } catch (error) {
+      console.error("[handleRegisterPatient error] ==>", error);
+      return null;
     }
   };
 
@@ -95,6 +118,9 @@ export function AuthProvider(props: { children: React.ReactNode }) {
         signOut: handleSignOut,
         user,
         isLoading,
+        userId,
+        setUserId,
+        registerPatient: handleRegisterPatient,
       }}
     >
       {props.children}
