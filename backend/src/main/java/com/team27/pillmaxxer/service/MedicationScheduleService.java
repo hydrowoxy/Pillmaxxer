@@ -25,11 +25,13 @@ public class MedicationScheduleService {
 
     private final PrescriptionRepository prescriptionRepository;
     private final MedicationScheduleRepository scheduleRepository;
+    private final ReminderService reminderService;
 
     public MedicationScheduleService(PrescriptionRepository prescriptionRepository,
-            MedicationScheduleRepository scheduleRepository) {
+            MedicationScheduleRepository scheduleRepository, ReminderService reminderService) {
         this.prescriptionRepository = prescriptionRepository;
         this.scheduleRepository = scheduleRepository;
+        this.reminderService = reminderService;
     }
 
     /*
@@ -106,7 +108,11 @@ public class MedicationScheduleService {
                             .collect(Collectors.toList()));
         }
 
-        return scheduleRepository.save(schedule); // Save the updated schedule, including the daily schedules
+        MedicationSchedule savedSchedule = scheduleRepository.save(schedule);
+
+        log.info("Creating or updating reminders for patient: " + patientId);
+        reminderService.createOrUpdateReminders(savedSchedule);
+        return savedSchedule;
     }
 
     /*
@@ -172,5 +178,10 @@ public class MedicationScheduleService {
 
         return Optional.of(foundSchedule);
 
+    }
+
+    public MedicationSchedule getScheduleForPatient(String patientId)
+            throws ExecutionException, InterruptedException {
+        return scheduleRepository.findByPatientId(patientId);
     }
 }
