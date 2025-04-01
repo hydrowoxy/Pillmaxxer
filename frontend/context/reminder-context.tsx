@@ -23,6 +23,7 @@ export const ReminderProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const fetchReminder = async () => {
     try {
       if (userId) {
+        console.log(`Fetching reminder for userId: ${userId}`);
         const data = await getReminder(userId);
         setReminder(data.reminder);
         setPollInterval(data.pollInterval || 3600000); // Update poll interval if provided

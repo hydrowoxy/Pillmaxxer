@@ -10,6 +10,7 @@ export const getHealth = async () => {
 }
 
 export const getPatientData = async (userId: string) => {
+  console.log("Fetching patient data for userId:", userId);
   const data = await get({
     url: `${API_URL}/api/patients/${userId}`,
   })
@@ -24,17 +25,21 @@ export const registerPatient = async (patientData: {
   phoneNumber: string;
   deviceToken: string[];
 }) => {
+  console.log("Registering patient with data:", patientData);
   const data = await post({
     url: `${API_URL}/api/patients/register`,
     body: patientData,
   })
+  console.log("Patient registered:", data);
   return data
 };
 
 export const getReminder = async (userId: string) => {
+  console.log("Fetching reminder for userId:", userId);
   const data = await get({
     url: `${API_URL}/api/patients/${userId}/reminders`,
   });
+  console.log("Fetched reminder data:", data);
   return data;
 };
 
