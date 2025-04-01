@@ -1,6 +1,6 @@
 import { router, Link } from "expo-router";
 import { Text, TextInput, View, Pressable, StyleSheet } from "react-native";
-import { registerPatient } from "@/services/spring-api";
+import { registerPatient } from "@/api/general";
 import { useState } from "react";
 
 /*
