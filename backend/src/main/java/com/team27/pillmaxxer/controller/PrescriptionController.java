@@ -15,10 +15,10 @@ import java.util.List;
  * REST controller for managing patient prescriptions.
  * Handles creation and retrieval of medication prescriptions.
  * 
- * Base endpoint: /api/patients/{patientId}/prescriptions
+ * Base endpoint: /api/patients/{userId}/prescriptions
  */
 @RestController
-@RequestMapping("/api/patients/{patientId}/prescriptions")
+@RequestMapping("/api/patients/{userId}/prescriptions")
 @Log
 public class PrescriptionController {
 
@@ -35,7 +35,7 @@ public class PrescriptionController {
      * 
      * Example Body:
      * {
-     * "patientId": "patient2",
+     * "userId": "patient2",
      * "medicationName": "Amoxicillin",
      * "dosage": "500mg",
      * "startDate": "2025-03-26",
@@ -66,15 +66,15 @@ public class PrescriptionController {
      * 
      * Example Request: GET /api/patients/patient1/prescriptions
      * 
-     * @param patientId ID of the patient to retrieve prescriptions for
+     * @param userId ID of the patient to retrieve prescriptions for
      * @return List of active prescriptions with 200 OK,
      *         or 500 INTERNAL_SERVER_ERROR if operation fails
      */
     @GetMapping
-    public ResponseEntity<List<Prescription>> getPatientPrescriptions(@PathVariable String patientId) {
+    public ResponseEntity<List<Prescription>> getPatientPrescriptions(@PathVariable String userId) {
         try {
-            log.info("Getting prescriptions for patient: " + patientId);
-            List<Prescription> prescriptions = prescriptionService.getActivePrescriptionsForPatient(patientId);
+            log.info("Getting prescriptions for patient: " + userId);
+            List<Prescription> prescriptions = prescriptionService.getActivePrescriptionsForPatient(userId);
             return ResponseEntity.ok(prescriptions);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();

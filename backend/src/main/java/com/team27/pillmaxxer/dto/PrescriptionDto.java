@@ -13,7 +13,7 @@ import java.util.*;
 @Setter
 public class PrescriptionDto {
     private String id;
-    private String patientId;
+    private String userId;
     private String medicationId;
     private String medicationName;
     private String dosage;
@@ -28,7 +28,7 @@ public class PrescriptionDto {
     public Map<String, Object> toFirestoreMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("id", this.id);
-        map.put("patientId", this.patientId);
+        map.put("userId", this.userId);
         map.put("medicationId", this.medicationId);
         map.put("medicationName", this.medicationName);
         map.put("dosage", this.dosage);
@@ -44,7 +44,7 @@ public class PrescriptionDto {
     public static PrescriptionDto fromFirestoreMap(Map<String, Object> map) {
         PrescriptionDto dto = new PrescriptionDto();
         dto.setId((String) map.get("id"));
-        dto.setPatientId((String) map.get("patientId"));
+        dto.setUserId((String) map.get("userId"));
         dto.setMedicationId((String) map.get("medicationId"));
         dto.setMedicationName((String) map.get("medicationName"));
         dto.setDosage((String) map.get("dosage"));

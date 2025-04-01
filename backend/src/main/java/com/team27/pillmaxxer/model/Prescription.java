@@ -8,7 +8,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class Prescription {
     private String id;
-    private String patientId;
+    private String userId;
     private String medicationId;
     private String medicationName;
     private String dosage; // dosage amount for each pill

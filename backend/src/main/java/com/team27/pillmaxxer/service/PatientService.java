@@ -1,7 +1,6 @@
 package com.team27.pillmaxxer.service;
 
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,14 +40,12 @@ public class PatientService {
 
         Patient patientData = new Patient();
         patientData = this.patientMapper.toDomainModel(patientRequest, uid);
-
         patientData.setUserId(uid);
-        patientData.setPatientId(UUID.randomUUID().toString());
         log.info("Saving patient data...");
         return patientRepository.save(patientData);
     }
 
-    public Optional<Patient> getPatient(String patientId) throws ExecutionException, InterruptedException {
-        return patientRepository.findById(patientId);
+    public Optional<Patient> getPatient(String userId) throws ExecutionException, InterruptedException {
+        return patientRepository.findById(userId);
     }
 }

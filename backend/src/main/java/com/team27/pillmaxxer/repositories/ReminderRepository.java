@@ -87,9 +87,9 @@ public class ReminderRepository implements FirestoreRepository<Reminder, String>
                 .get();
     }
 
-    public List<Reminder> findByPatientId(String patientId) throws ExecutionException, InterruptedException {
+    public List<Reminder> findByuserId(String userId) throws ExecutionException, InterruptedException {
         Query query = firestore.collection(COLLECTION_NAME)
-                .whereEqualTo("patientId", patientId);
+                .whereEqualTo("userId", userId);
 
         return findByQuery(query);
     }

@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 /*
  * Repository for managing Prescription entities in Firestore.
- * Provides custom query methods for finding prescriptions by patientId, medicationId, and date range.
+ * Provides custom query methods for finding prescriptions by userId, medicationId, and date range.
  */
 @Repository
 public class PrescriptionRepository implements FirestoreRepository<Prescription, String> {
@@ -94,15 +94,15 @@ public class PrescriptionRepository implements FirestoreRepository<Prescription,
     }
 
     // Custom query methods
-    public List<Prescription> findByPatientId(String patientId) throws ExecutionException, InterruptedException {
+    public List<Prescription> findByuserId(String userId) throws ExecutionException, InterruptedException {
         Query query = firestore.collection(COLLECTION_NAME)
-                .whereEqualTo("patientId", patientId);
+                .whereEqualTo("userId", userId);
         return findByQuery(query);
     }
 
-    public List<Prescription> findActiveByPatientId(String patientId) throws ExecutionException, InterruptedException {
+    public List<Prescription> findActiveByuserId(String userId) throws ExecutionException, InterruptedException {
         Query query = firestore.collection(COLLECTION_NAME)
-                .whereEqualTo("patientId", patientId)
+                .whereEqualTo("userId", userId)
                 .whereEqualTo("active", true);
         return findByQuery(query);
     }

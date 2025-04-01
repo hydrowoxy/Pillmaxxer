@@ -8,10 +8,10 @@ import com.team27.pillmaxxer.model.Prescription;
 
 public class TestUtil {
 
-    public static List<Prescription> createMockPrescriptions(String patientId, LocalDate testDate) {
+    public static List<Prescription> createMockPrescriptions(String userId, LocalDate testDate) {
         Prescription prescription1 = new Prescription();
         prescription1.setId("rx1");
-        prescription1.setPatientId(patientId);
+        prescription1.setUserId(userId);
         prescription1.setMedicationId("med1");
         prescription1.setMedicationName("Medication 1");
         prescription1.setDosage("10mg");
@@ -24,7 +24,7 @@ public class TestUtil {
 
         Prescription prescription2 = new Prescription();
         prescription2.setId("rx2");
-        prescription2.setPatientId(patientId);
+        prescription2.setUserId(userId);
         prescription2.setMedicationId("med2");
         prescription2.setMedicationName("Medication 2");
         prescription2.setDosage("5mg");

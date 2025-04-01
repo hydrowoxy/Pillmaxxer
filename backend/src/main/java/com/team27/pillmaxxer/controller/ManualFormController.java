@@ -17,16 +17,16 @@ public class ManualFormController {
      * API to create a prescription via manual form input.
      * Example Request: POST /api/manual-form/upload
      * Request body: {
-     *   "patientId": "patient2",
-     *   "medicationId": "med-id",
-     *   "medicationName": "Amoxicillin", 
-     *   "dosage": "500mg",
-     *   "startDate": "2025-03-26",
-     *   "endDate": "2025-03-31",
-     *   "instructions": "Take with food",
-     *   "quantity": "2",
-     *   "frequency": "Once daily",
-     *   "active": true
+     * "userId": "patient2",
+     * "medicationId": "med-id",
+     * "medicationName": "Amoxicillin",
+     * "dosage": "500mg",
+     * "startDate": "2025-03-26",
+     * "endDate": "2025-03-31",
+     * "instructions": "Take with food",
+     * "quantity": "2",
+     * "frequency": "Once daily",
+     * "active": true
      * }
      */
     @PostMapping("/upload")

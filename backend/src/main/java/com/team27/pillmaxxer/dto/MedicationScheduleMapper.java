@@ -18,7 +18,7 @@ public class MedicationScheduleMapper implements FirestoreMapper<MedicationSched
     public MedicationScheduleDto toDto(MedicationSchedule model) {
         MedicationScheduleDto dto = new MedicationScheduleDto();
         dto.setId(model.getId());
-        dto.setPatientId(model.getPatientId());
+        dto.setUserId(model.getUserId());
         if (model.getDailySchedules() != null) {
             dto.setDailySchedules(model.getDailySchedules().stream()
                     .map(MedicationScheduleDto.DailyScheduleDto::fromDomain)
@@ -32,7 +32,7 @@ public class MedicationScheduleMapper implements FirestoreMapper<MedicationSched
     public MedicationSchedule toDomainModel(MedicationScheduleDto dto) {
         MedicationSchedule model = new MedicationSchedule();
         model.setId(dto.getId());
-        model.setPatientId(dto.getPatientId());
+        model.setUserId(dto.getUserId());
 
         if (dto.getDailySchedules() != null) {
             model.setDailySchedules(dto.getDailySchedules().stream()

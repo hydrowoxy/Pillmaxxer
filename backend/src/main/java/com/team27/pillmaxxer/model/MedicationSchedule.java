@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class MedicationSchedule {
     private String id;
-    private String patientId;
+    private String userId;
     private List<DailySchedule> dailySchedules;
 
     @Data

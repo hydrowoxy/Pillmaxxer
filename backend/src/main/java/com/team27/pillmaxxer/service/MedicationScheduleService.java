@@ -39,11 +39,11 @@ public class MedicationScheduleService {
      * It generates schedules for all days for which there are active prescriptions,
      * either appending to an already existing schedule or creating a new one.
      */
-    public MedicationSchedule createPatientSchedule(String patientId) throws ExecutionException, InterruptedException {
-        log.info("Generating schedule for patient: " + patientId);
+    public MedicationSchedule createPatientSchedule(String userId) throws ExecutionException, InterruptedException {
+        log.info("Generating schedule for patient: " + userId);
 
         // Get active prescriptions for the patient
-        List<Prescription> prescriptions = prescriptionRepository.findActiveByPatientId(patientId);
+        List<Prescription> prescriptions = prescriptionRepository.findActiveByuserId(userId);
         log.info("Found " + prescriptions.size() + " active prescriptions");
 
         // Determine the range of dates to generate schedules for
@@ -54,14 +54,14 @@ public class MedicationScheduleService {
 
         log.info("Range of dates: " + dates);
 
-        MedicationSchedule schedule = scheduleRepository.findByPatientId(patientId);
+        MedicationSchedule schedule = scheduleRepository.findByuserId(userId);
         log.info("Found schedule: " + schedule);
 
         if (schedule == null) {
             schedule = new MedicationSchedule();
-            schedule.setId(patientId + "_schedule");
+            schedule.setId(userId + "_schedule");
         }
-        schedule.setPatientId(patientId);
+        schedule.setUserId(userId);
 
         // Ensure dailySchedules is initialized if it's null
         if (schedule.getDailySchedules() == null) {
@@ -110,7 +110,7 @@ public class MedicationScheduleService {
 
         MedicationSchedule savedSchedule = scheduleRepository.save(schedule);
 
-        log.info("Creating or updating reminders for patient: " + patientId);
+        log.info("Creating or updating reminders for patient: " + userId);
         reminderService.createOrUpdateReminders(savedSchedule);
         return savedSchedule;
     }
@@ -145,9 +145,9 @@ public class MedicationScheduleService {
      * This function retrieves the schedule for a given patient and date.
      * If no schedule exists for the given date, an empty optional is returned.
      */
-    public Optional<MedicationSchedule.DailySchedule> getScheduleForDate(String patientId, LocalDate date)
+    public Optional<MedicationSchedule.DailySchedule> getScheduleForDate(String userId, LocalDate date)
             throws ExecutionException, InterruptedException {
-        MedicationSchedule foundSchedule = scheduleRepository.findByPatientId(patientId);
+        MedicationSchedule foundSchedule = scheduleRepository.findByuserId(userId);
         if (foundSchedule == null) {
             return Optional.empty();
         }
@@ -162,9 +162,9 @@ public class MedicationScheduleService {
      * If no schedule exists for the given date range, an empty optional is
      * returned.
      */
-    public Optional<MedicationSchedule> getScheduleForDateRange(String patientId, LocalDate startDate,
+    public Optional<MedicationSchedule> getScheduleForDateRange(String userId, LocalDate startDate,
             LocalDate endDate) throws ExecutionException, InterruptedException {
-        MedicationSchedule foundSchedule = scheduleRepository.findByPatientId(patientId);
+        MedicationSchedule foundSchedule = scheduleRepository.findByuserId(userId);
 
         if (foundSchedule == null) {
             return Optional.empty();
@@ -180,8 +180,8 @@ public class MedicationScheduleService {
 
     }
 
-    public MedicationSchedule getScheduleForPatient(String patientId)
+    public MedicationSchedule getScheduleForPatient(String userId)
             throws ExecutionException, InterruptedException {
-        return scheduleRepository.findByPatientId(patientId);
+        return scheduleRepository.findByuserId(userId);
     }
 }

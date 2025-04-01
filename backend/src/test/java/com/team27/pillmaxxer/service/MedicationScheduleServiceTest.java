@@ -34,24 +34,24 @@ public class MedicationScheduleServiceTest {
         @InjectMocks
         private MedicationScheduleService medicationScheduleService;
 
-        private String patientId;
+        private String userId;
         private LocalDate testDate;
         private List<Prescription> mockPrescriptions;
 
         @BeforeEach
         public void setUp() {
-                patientId = "patient123";
+                userId = "patient123";
                 testDate = LocalDate.now();
-                mockPrescriptions = TestUtil.createMockPrescriptions(patientId, testDate);
+                mockPrescriptions = TestUtil.createMockPrescriptions(userId, testDate);
         }
 
         @Test
         public void testPatientScheduleCreationFromPrescriptions() throws ExecutionException, InterruptedException {
                 // Mock repository behaviors
-                when(prescriptionRepository.findActiveByPatientId(patientId))
+                when(prescriptionRepository.findActiveByuserId(userId))
                                 .thenReturn(mockPrescriptions);
 
-                when(scheduleRepository.findByPatientId(patientId))
+                when(scheduleRepository.findByuserId(userId))
                                 .thenReturn(null); // Simulate no existing schedule
 
                 // returns the first argument (the medication schedule)
@@ -59,14 +59,14 @@ public class MedicationScheduleServiceTest {
                                 .thenAnswer(invocation -> invocation.getArgument(0));
 
                 // Execute the method
-                MedicationSchedule schedule = medicationScheduleService.createPatientSchedule(patientId);
+                MedicationSchedule schedule = medicationScheduleService.createPatientSchedule(userId);
 
                 // Verify interactions and assertions
-                verify(prescriptionRepository).findActiveByPatientId(patientId);
+                verify(prescriptionRepository).findActiveByuserId(userId);
                 verify(scheduleRepository).save(any(MedicationSchedule.class));
 
                 assertNotNull(schedule);
-                assertEquals(patientId, schedule.getPatientId());
+                assertEquals(userId, schedule.getUserId());
                 assertNotNull(schedule.getDailySchedules());
                 assertFalse(schedule.getDailySchedules().isEmpty());
                 assertTrue(schedule.getDailySchedules().stream().anyMatch(ds -> ds.getDate().equals(testDate)));
@@ -76,17 +76,17 @@ public class MedicationScheduleServiceTest {
         @Test
         public void testGetScheduleForDate() throws ExecutionException, InterruptedException {
                 MedicationSchedule mockSchedule = new MedicationSchedule();
-                mockSchedule.setPatientId(patientId);
+                mockSchedule.setUserId(userId);
                 mockSchedule.setDailySchedules(
                                 List.of(new MedicationSchedule.DailySchedule(testDate, new ArrayList<>())));
 
                 // Mock repository behavior
-                when(scheduleRepository.findByPatientId(patientId))
+                when(scheduleRepository.findByuserId(userId))
                                 .thenReturn(mockSchedule);
 
                 // Execute the method
                 Optional<MedicationSchedule.DailySchedule> dailySchedule = medicationScheduleService
-                                .getScheduleForDate(patientId, testDate);
+                                .getScheduleForDate(userId, testDate);
 
                 // Verify assertions
                 assertTrue(dailySchedule.isPresent());
@@ -99,7 +99,7 @@ public class MedicationScheduleServiceTest {
                 LocalDate endDate = testDate.plusDays(1);
 
                 MedicationSchedule mockSchedule = new MedicationSchedule();
-                mockSchedule.setPatientId(patientId);
+                mockSchedule.setUserId(userId);
                 mockSchedule.setDailySchedules(List.of(
                                 new MedicationSchedule.DailySchedule(startDate, new ArrayList<>()),
                                 new MedicationSchedule.DailySchedule(testDate, new ArrayList<>()),
@@ -107,11 +107,11 @@ public class MedicationScheduleServiceTest {
                                 new MedicationSchedule.DailySchedule(endDate.plusDays(1), new ArrayList<>())));
 
                 // Mock repository behavior
-                when(scheduleRepository.findByPatientId(patientId))
+                when(scheduleRepository.findByuserId(userId))
                                 .thenReturn(mockSchedule);
 
                 // Execute the method
-                Optional<MedicationSchedule> schedule = medicationScheduleService.getScheduleForDateRange(patientId,
+                Optional<MedicationSchedule> schedule = medicationScheduleService.getScheduleForDateRange(userId,
                                 startDate, endDate);
 
                 // Verify assertions

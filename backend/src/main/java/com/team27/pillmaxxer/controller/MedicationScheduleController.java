@@ -15,10 +15,10 @@ import java.time.LocalDate;
  * REST controller for managing patient medication schedules.
  * Handles schedule retrieval and updates based on active prescriptions.
  * 
- * Base endpoint: /api/patients/{patientId}/schedules
+ * Base endpoint: /api/patients/{userId}/schedules
  */
 @RestController
-@RequestMapping("/api/patients/{patientId}/schedules")
+@RequestMapping("/api/patients/{userId}/schedules")
 @Log
 public class MedicationScheduleController {
 
@@ -34,13 +34,13 @@ public class MedicationScheduleController {
      * 
      * Example request: GET /api/patients/patient1/schedules?date=2025-03-26
      * 
-     * @param patientId The patient ID to retrieve the schedule for
-     * @param date      The date to retrieve the schedule for
+     * @param userId The user Id to retrieve the schedule for
+     * @param date   The date to retrieve the schedule for
      * @return Schedule with 200 OK, 404 if not found, or 500 on error
      */
     @GetMapping
     public ResponseEntity<MedicationSchedule.DailySchedule> getScheduleForDate(
-            @PathVariable String patientId,
+            @PathVariable String userId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
         try {
@@ -48,7 +48,7 @@ public class MedicationScheduleController {
                 date = LocalDate.now();
             }
 
-            return scheduleService.getScheduleForDate(patientId, date)
+            return scheduleService.getScheduleForDate(userId, date)
                     .map(ResponseEntity::ok)
                     .orElseGet(() -> ResponseEntity.notFound().build());
 
@@ -62,15 +62,15 @@ public class MedicationScheduleController {
      * 
      * Example Request: POST /api/patients/patient1/schedules/create
      * 
-     * @param patientId The patient ID to create the schedule for
+     * @param userId The patient ID to create the schedule for
      * @return Created schedule with 200 OK, or 500 on error
      */
     @PostMapping("/create")
-    public ResponseEntity<MedicationSchedule> createSchedule(@PathVariable String patientId) {
+    public ResponseEntity<MedicationSchedule> createSchedule(@PathVariable String userId) {
         try {
-            log.info("Creating schedule for patient: " + patientId);
-            MedicationSchedule schedule = scheduleService.createPatientSchedule(patientId);
-            log.info("Schedule created successfully for: " + patientId);
+            log.info("Creating schedule for patient: " + userId);
+            MedicationSchedule schedule = scheduleService.createPatientSchedule(userId);
+            log.info("Schedule created successfully for: " + userId);
             return ResponseEntity.ok(schedule);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
@@ -82,19 +82,19 @@ public class MedicationScheduleController {
      * 
      * Example request: GET /api/patients/patient1/schedules/2025-03-26/2025-03-30
      * 
-     * @param patientId The patient ID to retrieve the schedule for
+     * @param userId    The patient ID to retrieve the schedule for
      * @param startDate The start date of the range
      * @param endDate   The end date of the range
      * @return Schedule with 200 OK, 404 if not found, or 500 on error
      */
     @GetMapping("/{startDate}/{endDate}")
     public ResponseEntity<MedicationSchedule> getScheduleForDateRange(
-            @PathVariable String patientId,
+            @PathVariable String userId,
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         try {
 
-            return scheduleService.getScheduleForDateRange(patientId, startDate, endDate)
+            return scheduleService.getScheduleForDateRange(userId, startDate, endDate)
                     .map(ResponseEntity::ok)
                     .orElseGet(() -> ResponseEntity.notFound().build());
 

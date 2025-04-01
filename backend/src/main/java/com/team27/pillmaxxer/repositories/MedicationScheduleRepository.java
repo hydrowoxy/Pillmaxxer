@@ -92,9 +92,9 @@ public class MedicationScheduleRepository implements FirestoreRepository<Medicat
                 .get();
     }
 
-    public MedicationSchedule findByPatientId(String patientId) throws ExecutionException, InterruptedException {
+    public MedicationSchedule findByuserId(String userId) throws ExecutionException, InterruptedException {
         Query query = firestore.collection(COLLECTION_NAME)
-                .whereEqualTo("patientId", patientId);
+                .whereEqualTo("userId", userId);
 
         List<MedicationSchedule> schedules = findByQuery(query);
         if (schedules.isEmpty()) {

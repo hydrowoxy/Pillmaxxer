@@ -30,7 +30,7 @@ public class PatientRepository implements FirestoreRepository<Patient, String> {
     @Override
     public Patient save(Patient entity) throws ExecutionException, InterruptedException {
         firestore.collection(COLLECTION_NAME)
-                .document(entity.getPatientId())
+                .document(entity.getUserId())
                 .set(mapper.toFirestoreMap(entity))
                 .get();
         return entity;

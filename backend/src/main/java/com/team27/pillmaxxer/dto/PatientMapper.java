@@ -18,6 +18,7 @@ public class PatientMapper {
         patient.setFirstName(request.getFirstName());
         patient.setLastName(request.getLastName());
         patient.setPhoneNumber(request.getPhoneNumber());
+        patient.setUserId(userId); // Links to Firebase Auth UID
         patient.setDeviceTokens(request.getDeviceTokens());
         return patient;
     }
@@ -39,7 +40,6 @@ public class PatientMapper {
         Map<String, Object> fireStoreMap = document.getData();
         Patient patient = new Patient();
 
-        patient.setPatientId((String) fireStoreMap.get("patientId"));
         patient.setUserId((String) fireStoreMap.get("userId"));
         patient.setFirstName((String) fireStoreMap.get("firstName"));
         patient.setLastName((String) fireStoreMap.get("lastName"));
@@ -52,7 +52,6 @@ public class PatientMapper {
 
     public Map<String, Object> toFirestoreMap(Patient patient) {
         Map<String, Object> map = new HashMap<>();
-        map.put("patientId", patient.getPatientId());
         map.put("userId", patient.getUserId());
         map.put("firstName", patient.getFirstName());
         map.put("lastName", patient.getLastName());

@@ -28,7 +28,7 @@ public class ReminderMapper {
     public Map<String, Object> toFirestoreMap(Reminder reminder) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", reminder.getId());
-        map.put("patientId", reminder.getPatientId());
+        map.put("userId", reminder.getUserId());
         map.put("patientDeviceToken", reminder.getPatientDeviceToken());
         map.put("date", reminder.getDate().toString());
         map.put("scheduledDose", mapScheduledDoseToFirestore(reminder.getScheduledDose()));
@@ -51,7 +51,7 @@ public class ReminderMapper {
 
         return new Reminder(
                 document.getString("id"),
-                document.getString("patientId"),
+                document.getString("userId"),
                 document.getString("patientDeviceToken"),
                 LocalDate.parse((String) document.getString("date")),
                 mapFirestoreToScheduledDose(scheduledDoseMap));

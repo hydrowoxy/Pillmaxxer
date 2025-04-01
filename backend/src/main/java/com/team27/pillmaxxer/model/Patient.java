@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Patient {
-    private String patientId; // Firestore document ID
     private String userId; // Links to Firebase Auth UID
     private String firstName;
     private String lastName;

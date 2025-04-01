@@ -25,8 +25,8 @@ public class ReminderService {
         this.reminderRepository = reminderRepository;
     }
 
-    public Reminder getNextReminder(String patientId) throws ExecutionException, InterruptedException {
-        List<Reminder> patientReminders = reminderRepository.findByPatientId(patientId);
+    public Reminder getNextReminder(String userId) throws ExecutionException, InterruptedException {
+        List<Reminder> patientReminders = reminderRepository.findByuserId(userId);
 
         if (patientReminders == null || patientReminders.isEmpty()) {
             return null;
@@ -92,7 +92,7 @@ public class ReminderService {
 
     public void createOrUpdateReminders(MedicationSchedule schedule) throws ExecutionException, InterruptedException {
         // Clear old reminders
-        List<Reminder> oldReminders = reminderRepository.findByPatientId(schedule.getPatientId());
+        List<Reminder> oldReminders = reminderRepository.findByuserId(schedule.getUserId());
         for (Reminder reminder : oldReminders) {
             reminderRepository.delete(reminder.getId());
         }
@@ -108,7 +108,7 @@ public class ReminderService {
             for (MedicationSchedule.ScheduledDose dose : dailySchedule.getScheduledDoses()) {
                 LocalDateTime doseDateTime = LocalDateTime.of(dailySchedule.getDate(), dose.getTimeOfDay());
                 if (doseDateTime.isAfter(now)) {
-                    reminders.add(new Reminder(null, schedule.getPatientId(), null, dailySchedule.getDate(), dose));
+                    reminders.add(new Reminder(null, schedule.getUserId(), null, dailySchedule.getDate(), dose));
                 }
             }
         }

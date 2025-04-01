@@ -19,7 +19,7 @@ import lombok.Setter;
 @Setter
 public class MedicationScheduleDto {
     private String id;
-    private String patientId;
+    private String userId;
     private List<DailyScheduleDto> dailySchedules;
 
     @Data
@@ -74,7 +74,7 @@ public class MedicationScheduleDto {
     public Map<String, Object> toFirestoreMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("id", this.id);
-        map.put("patientId", this.patientId);
+        map.put("userId", this.userId);
         map.put("dailySchedules", this.dailySchedules.stream()
                 .map(ds -> {
                     Map<String, Object> dailyScheduleMap = new HashMap<>();
@@ -106,7 +106,7 @@ public class MedicationScheduleDto {
     public static MedicationScheduleDto fromFirestoreMap(Map<String, Object> map) {
         MedicationScheduleDto dto = new MedicationScheduleDto();
         dto.setId((String) map.get("id"));
-        dto.setPatientId((String) map.get("patientId"));
+        dto.setUserId((String) map.get("userId"));
 
         List<Map<String, Object>> dailySchedules = (List<Map<String, Object>>) map.get("dailySchedules");
         if (dailySchedules != null) {

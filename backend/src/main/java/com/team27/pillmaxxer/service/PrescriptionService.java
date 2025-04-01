@@ -44,7 +44,7 @@ public class PrescriptionService {
 
         // Create prescription
         Prescription prescription = new Prescription();
-        prescription.setPatientId(prescriptionDto.getPatientId());
+        prescription.setUserId(prescriptionDto.getUserId());
         prescription.setMedicationId(medication.getId());
         prescription.setMedicationName(medication.getName());
         prescription.setDosage(prescriptionDto.getDosage());
@@ -61,8 +61,8 @@ public class PrescriptionService {
         return savedPrescription;
     }
 
-    public List<Prescription> getActivePrescriptionsForPatient(String patientId)
+    public List<Prescription> getActivePrescriptionsForPatient(String userId)
             throws ExecutionException, InterruptedException {
-        return prescriptionRepository.findActiveByPatientId(patientId);
+        return prescriptionRepository.findActiveByuserId(userId);
     }
 }

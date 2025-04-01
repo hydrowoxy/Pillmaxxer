@@ -15,7 +15,7 @@ public class PrescriptionMapper implements FirestoreMapper<PrescriptionDto, Pres
     public PrescriptionDto toDto(Prescription model) {
         PrescriptionDto dto = new PrescriptionDto();
         dto.setId(model.getId());
-        dto.setPatientId(model.getPatientId());
+        dto.setUserId(model.getUserId());
         dto.setMedicationId(model.getMedicationId());
         dto.setMedicationName(model.getMedicationName());
         dto.setDosage(model.getDosage());
@@ -32,7 +32,7 @@ public class PrescriptionMapper implements FirestoreMapper<PrescriptionDto, Pres
     public Prescription toDomainModel(PrescriptionDto dto) {
         Prescription model = new Prescription();
         model.setId(dto.getId());
-        model.setPatientId(dto.getPatientId());
+        model.setUserId(dto.getUserId());
         model.setMedicationId(dto.getMedicationId());
         model.setMedicationName(dto.getMedicationName());
         model.setDosage(dto.getDosage());

@@ -63,13 +63,13 @@ public class PatientController {
      * 
      * Example Request: GET /api/patients/patient1
      * 
-     * @param patientId The patient ID to retrieve
+     * @param userId The patient ID to retrieve
      * @return Patient data with 200 OK, 404 if not found, or 500 on error
      */
-    @GetMapping("/{patientId}")
-    public ResponseEntity<Patient> getPatient(@PathVariable String patientId) {
+    @GetMapping("/{userId}")
+    public ResponseEntity<Patient> getPatient(@PathVariable String userId) {
         try {
-            return patientService.getPatient(patientId)
+            return patientService.getPatient(userId)
                     .map(patient -> ResponseEntity.ok(patient))
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {

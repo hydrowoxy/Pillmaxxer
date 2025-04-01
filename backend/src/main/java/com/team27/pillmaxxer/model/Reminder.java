@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Reminder {
     private String id; // Unique ID for the reminder
-    private String patientId;
+    private String userId;
     private String patientDeviceToken; // Could be used in the future for push notifications, etc.
     private LocalDate date;
     private ScheduledDose scheduledDose;
