@@ -10,6 +10,7 @@ import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,14 +43,16 @@ public class MedicationScheduleService {
     public MedicationSchedule createPatientSchedule(String userId) throws ExecutionException, InterruptedException {
         log.info("Generating schedule for patient: " + userId);
 
-        // Get active prescriptions for the patient
         List<Prescription> prescriptions = prescriptionRepository.findActiveByuserId(userId);
         log.info("Found " + prescriptions.size() + " active prescriptions");
 
-        // Determine the range of dates to generate schedules for
+        LocalDate today = LocalDate.now();
+
+        // Determine the range of dates to generate schedules for (current and future)
         List<LocalDate> dates = prescriptions.stream()
                 .flatMap(p -> p.getStartDate().datesUntil(p.getEndDate().plusDays(1)))
                 .distinct()
+                .filter(date -> !date.isBefore(today)) // Filter for current and future dates
                 .collect(Collectors.toList());
 
         log.info("Range of dates: " + dates);
@@ -63,32 +66,19 @@ public class MedicationScheduleService {
         }
         schedule.setUserId(userId);
 
-        // Ensure dailySchedules is initialized if it's null
-        if (schedule.getDailySchedules() == null) {
+        // Clear existing daily schedules before generating new ones
+        if (schedule.getDailySchedules() != null) {
+            schedule.getDailySchedules().clear();
+        } else {
             schedule.setDailySchedules(new ArrayList<>());
         }
 
         for (LocalDate date : dates) {
-            // Find or create the DailySchedule for the current date
-            MedicationSchedule.DailySchedule dailySchedule = schedule.getDailySchedules().stream()
-                    .filter(ds -> ds.getDate().equals(date))
-                    .findFirst()
-                    .orElse(new MedicationSchedule.DailySchedule(date, new ArrayList<>()));
-
-            // If the daily schedule was not found in the existing list, add it
-            if (!schedule.getDailySchedules().contains(dailySchedule)) {
-                schedule.getDailySchedules().add(dailySchedule);
-            }
-
-            // Clear existing scheduled doses for the current date
-            if (dailySchedule.getScheduledDoses() != null) {
-                dailySchedule.getScheduledDoses().clear();
-            }
+            MedicationSchedule.DailySchedule dailySchedule = new MedicationSchedule.DailySchedule(date,
+                    new ArrayList<>());
 
             Map<LocalTime, List<MedicationSchedule.MedicationDose>> timeSlots = new TreeMap<>();
 
-            // filter for active prescriptions and generate times for each
-            // prescription, a make a medication dose for each time slot
             prescriptions.stream()
                     .filter(p -> isActiveOnDate(p, date))
                     .forEach(p -> generateTimes(p.getFrequency()).forEach(time -> {
@@ -102,10 +92,18 @@ public class MedicationScheduleService {
                     }));
 
             log.info("Generated " + timeSlots.size() + " time slots for date: " + date);
-            dailySchedule.setScheduledDoses(
-                    timeSlots.entrySet().stream()
-                            .map(e -> new MedicationSchedule.ScheduledDose(e.getKey(), e.getValue()))
-                            .collect(Collectors.toList()));
+            // Filter out past medication doses
+            List<MedicationSchedule.ScheduledDose> filteredScheduledDoses = timeSlots.entrySet().stream()
+                    .filter(entry -> {
+                        LocalDateTime doseDateTime = LocalDateTime.of(date, entry.getKey());
+                        return doseDateTime.isAfter(LocalDateTime.now()) || doseDateTime.isEqual(LocalDateTime.now());
+                    })
+                    .map(entry -> new MedicationSchedule.ScheduledDose(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
+
+            dailySchedule.setScheduledDoses(filteredScheduledDoses);
+
+            schedule.getDailySchedules().add(dailySchedule);
         }
 
         MedicationSchedule savedSchedule = scheduleRepository.save(schedule);
@@ -132,7 +130,7 @@ public class MedicationScheduleService {
      */
     private List<LocalTime> generateTimes(String frequency) {
         return switch (frequency.toLowerCase()) {
-            case "once daily" -> List.of(LocalTime.of(9, 0));
+            case "once daily" -> List.of(LocalTime.now().plusMinutes(2)); // HARD CODE THIS FOR DEMO PURPOSES
             case "twice daily" -> List.of(LocalTime.of(9, 0), LocalTime.of(21, 0));
             case "three times daily" -> List.of(LocalTime.of(8, 0), LocalTime.of(14, 0), LocalTime.of(20, 0));
             case "every 6 hours" ->

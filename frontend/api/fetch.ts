@@ -38,19 +38,22 @@ export const post = async ({ url, body }: PostProps) => {
   const headers: Record<string, string> = { "Content-Type": "application/json" }
   const requestBody = JSON.stringify(body)
 
+  console.log("Request Body:", requestBody)
+  console.log("Request URL:", url)
+  
   const response = await fetch(url, {
     method: "POST",
     headers,
     body: requestBody,
   })
-
   const data = await response.json()
-
+  console.log("Response Data:", data)
+  console.log("Response Status:", response.status)
   if (response.ok) {
     return data
   }
-
   throw data
+
 }
 
 export const postFiles = async ({ url, body }: PostProps) => {

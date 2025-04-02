@@ -39,7 +39,7 @@ public class ReminderController {
             Long pollInterval = reminderService.getPollingFrequency(reminder);
 
             ReminderResponse response = new ReminderResponse(reminder, pollInterval);
-
+            log.info("Reminder retrieved for patient: " + userId + " - " + reminder);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.severe("Error retrieving reminders for patient: " + userId + " - " + e.getMessage());
