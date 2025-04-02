@@ -56,6 +56,7 @@ const executeScanImageTest = async (uri: string) => {
     assets: [testImage],
   })
 
+  jest.spyOn(router, "setParams").mockImplementation()
   const routerSpy = jest.spyOn(router, "push").mockImplementation(jest.fn())
 
   // run UI interaction
