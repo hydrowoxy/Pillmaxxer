@@ -66,7 +66,7 @@ export const postFiles = async ({ url, body }: PostProps) => {
       } else {
         // testing (local) version
         const formData = new FormData()
-        formData.append(key, getLocalFileBlob(body[key]))
+        formData.append(key, await getLocalFileBlob(body[key]))
 
         const response = await fetch(url, {
           method: "POST",
