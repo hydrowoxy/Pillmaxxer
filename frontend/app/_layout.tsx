@@ -1,6 +1,6 @@
-import { AuthProvider } from "@/context/auth-context";
-import { ReminderProvider } from "@/context/reminder-context";
-import { Slot } from "expo-router";
+import { AuthProvider } from "@/context/auth-context"
+import { ReminderProvider } from "@/context/reminder-context"
+import { Slot } from "expo-router"
 
 export default function Root() {
   // Set up the auth context and render our layout inside of it.
@@ -14,5 +14,5 @@ export default function Root() {
         <Slot />
       </ReminderProvider>
     </AuthProvider>
-  );
+  )
 }
