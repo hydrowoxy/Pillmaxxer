@@ -47,6 +47,6 @@ export type Prescription = {
 	startDate: string; // Date in YYYY-MM-DD format
 	endDate: string; // Date in YYYY-MM-DD format
 	instructions: string;
-	quantity: number;
+	quantity: string;
 	frequency: string;
 };

@@ -1,169 +1,204 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
-  ScrollView,
-  SafeAreaView,
-  Platform,
-} from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker'; // For date pickers
-import { useNavigation } from '@react-navigation/native'; // If using React Navigation
+  TouchableOpacity,
+} from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { createPrescription } from "../../api/general"; // Adjust the path as needed
+import { useAuth } from "@/context/auth-context"; // Assuming you have an auth context for userId
+import { Prescription } from "@/types/Types";
 
-const PrescriptionFormScreen = () => {
-  const [medicationName, setMedicationName] = useState('');
-  const [dosage, setDosage] = useState('');
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
-  const [instructions, setInstructions] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [frequency, setFrequency] = useState('');
+const MedicationFormScreen = () => {
+  const { autofill } = useLocalSearchParams<{ autofill: string }>();
+  const medication = autofill ? JSON.parse(autofill) : {};
+  const { userId } = useAuth(); // Get the userId from your auth context
 
-  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
-  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [medicationName, setMedicationName] = useState(medication?.name || "");
+  const [dosage, setDosage] = useState(medication?.dosage || "");
+  const [frequency, setFrequency] = useState(medication?.frequency || "");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [instructions, setInstructions] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const [submissionSuccess, setSubmissionSuccess] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const navigation = useNavigation(); // If using React Navigation
+  const handleSave = async () => {
+    if (!userId) {
+      console.error("User ID not available.");
+      setSubmissionError("User ID not available.");
+      return;
+    }
 
-  const handleStartDateChange = (event: any, selectedDate: Date | undefined) => {
-    const currentDate = selectedDate || startDate;
-    setShowStartDatePicker(Platform.OS === 'ios'); // Hide picker on iOS
-    setStartDate(currentDate);
-  };
+    setLoading(true);
+    setSubmissionError(null);
+    setSubmissionSuccess(false);
 
-  const handleEndDateChange = (event: any, selectedDate: Date | undefined) => {
-    const currentDate = selectedDate || endDate;
-    setShowEndDatePicker(Platform.OS === 'ios'); // Hide picker on iOS
-    setEndDate(currentDate);
-  };
-
-  const handleSubmit = () => {
-    const prescription = {
+    const prescriptionData: Prescription = {
       medicationName,
       dosage,
-      startDate: startDate.toISOString().split('T')[0], // Format to YYYY-MM-DD
-      endDate: endDate.toISOString().split('T')[0],
+      startDate,
+      endDate,
       instructions,
       quantity,
       frequency,
     };
-    console.log(prescription);
-    // Here you would send the prescription data to your backend or store it locally.
-    // navigation.navigate('PrescriptionConfirmation', { prescription }); // Example Navigation
+
+    try {
+      console.log("Creating prescription with data:", prescriptionData);
+      const createdPrescription = await createPrescription(userId, prescriptionData);
+      console.log("Prescription created successfully:", createdPrescription);
+      setSubmissionSuccess(true);
+      // // Optionally reset the form after successful submission
+      // setMedicationName("");
+      // setDosage("");
+      // setFrequency("");
+      // setStartDate("");
+      // setEndDate("");
+      // setInstructions("");
+      // setQuantity("");
+
+
+      setTimeout(() => {
+        router.push("/(tabs)");
+      }, 2000); // Redirect after a short delay
+    } catch (error: any) {
+      console.error("Failed to create prescription:", error);
+      setSubmissionError(error?.response?.data?.message || error.message || "Failed to create prescription.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView>
-        <Text style={styles.label}>Medication Name</Text>
-        <TextInput
-          style={styles.input}
-          value={medicationName}
-          onChangeText={setMedicationName}
-        />
+    <View style={styles.container}>
+      <Text style={styles.title}>Submit your prescription data</Text>
 
-        <Text style={styles.label}>Dosage (mg)</Text>
-        <TextInput
-          style={styles.input}
-          value={dosage}
-          onChangeText={setDosage}
-          keyboardType="numeric"
-        />
+      {submissionSuccess && (
+        <Text style={{ color: "green", marginBottom: 10 }}>
+          Prescription created successfully!
+        </Text>
+      )}
+      {submissionError && (
+        <Text style={{ color: "red", marginBottom: 10 }}>
+          Error: {submissionError}
+        </Text>
+      )}
 
-        <Text style={styles.label}>Start Date</Text>
-        <TouchableOpacity style={styles.datePicker} onPress={() => setShowStartDatePicker(true)}>
-          <Text>{startDate.toISOString().split('T')[0]}</Text>
-        </TouchableOpacity>
-        {showStartDatePicker && (
-          <DateTimePicker
-            value={startDate}
-            mode="date"
-            display="default"
-            onChange={handleStartDateChange}
-          />
-        )}
+      <Text style={styles.label}>Medication Name</Text>
+      <TextInput
+        value={medicationName}
+        onChangeText={setMedicationName}
+        style={styles.input}
+      />
 
-        <Text style={styles.label}>End Date</Text>
-        <TouchableOpacity style={styles.datePicker} onPress={() => setShowEndDatePicker(true)}>
-          <Text>{endDate.toISOString().split('T')[0]}</Text>
-        </TouchableOpacity>
-        {showEndDatePicker && (
-          <DateTimePicker
-            value={endDate}
-            mode="date"
-            display="default"
-            onChange={handleEndDateChange}
-          />
-        )}
+      <Text style={styles.label}>Dosage (e.g., 500mg, 1 tablet)</Text>
+      <TextInput value={dosage} onChangeText={setDosage} style={styles.input} />
 
-        <Text style={styles.label}>Instructions</Text>
-        <TextInput
-          style={styles.input}
-          value={instructions}
-          onChangeText={setInstructions}
-          multiline
-        />
+      <Text style={styles.label}>Frequency (e.g., Once daily, Twice a day)</Text>
+      <TextInput
+        value={frequency}
+        onChangeText={setFrequency}
+        style={styles.input}
+      />
 
-        <Text style={styles.label}>Quantity (pills)</Text>
-        <TextInput
-          style={styles.input}
-          value={quantity}
-          onChangeText={setQuantity}
-          keyboardType="numeric"
-        />
+      <Text style={styles.label}>Start Date (YYYY-MM-DD)</Text>
+      <TextInput
+        value={startDate}
+        onChangeText={setStartDate}
+        style={styles.input}
+        placeholder="YYYY-MM-DD"
+      />
 
-        <Text style={styles.label}>Frequency (times/day)</Text>
-        <TextInput
-          style={styles.input}
-          value={frequency}
-          onChangeText={setFrequency}
-          keyboardType="numeric"
-        />
+      <Text style={styles.label}>End Date (YYYY-MM-DD)</Text>
+      <TextInput
+        value={endDate}
+        onChangeText={setEndDate}
+        style={styles.input}
+        placeholder="YYYY-MM-DD"
+      />
 
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>Submit</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </SafeAreaView>
+      <Text style={styles.label}>Instructions (e.g., Take with food)</Text>
+      <TextInput
+        value={instructions}
+        onChangeText={setInstructions}
+        style={styles.input}
+      />
+
+      <Text style={styles.label}>Quantity (e.g., 30, 2 bottles)</Text>
+      <TextInput
+        value={quantity}
+        onChangeText={setQuantity}
+        style={styles.input}
+      />
+
+      <TouchableOpacity
+        style={[styles.button, loading && styles.buttonDisabled]}
+        onPress={handleSave}
+        disabled={loading}
+      >
+        <Text style={styles.buttonText}>
+          {loading ? "Saving..." : "Looks good to me!"}
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f9f9f9",
+    padding: 36,
+    gap: 8,
+    textTransform: "uppercase",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: "#333",
+    alignSelf: "flex-start",
+    marginBottom: 16,
+  },
+  subtitle: {
+    color: "#333",
+    alignSelf: "flex-start",
+    marginBottom: 16,
   },
   label: {
-    fontSize: 16,
+    fontWeight: "bold",
+    alignSelf: "flex-start",
     marginTop: 10,
+    marginBottom: 5,
   },
   input: {
-    height: 40,
-    borderColor: 'gray',
+    width: "100%",
     borderWidth: 1,
-    marginTop: 5,
-    padding: 10,
-  },
-  datePicker: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginTop: 5,
-    padding: 10,
-    justifyContent: 'center',
+    padding: 8,
+    borderColor: "#ddd",
+    borderRadius: 8,
   },
   button: {
-    backgroundColor: 'blue',
-    padding: 15,
-    borderRadius: 5,
-    alignItems: 'center',
     marginTop: 20,
+    backgroundColor: "#156fe9",
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 30,
+  },
+  buttonDisabled: {
+    backgroundColor: "#ccc",
   },
   buttonText: {
-    color: 'white',
-    fontSize: 16,
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "500",
   },
 });
 
-export default PrescriptionFormScreen;
+export default MedicationFormScreen;
