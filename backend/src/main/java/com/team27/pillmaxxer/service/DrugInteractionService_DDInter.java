@@ -2,16 +2,22 @@ package com.team27.pillmaxxer.service;
 
 import org.springframework.stereotype.Service;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.java.Log;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import com.team27.pillmaxxer.dto.DrugInteractionResponse;
+import com.team27.pillmaxxer.model.MedicationSchedule;
+
 @Service
+@Log
 public class DrugInteractionService_DDInter {
 
     // Store unique interactions
     private final Set<String> seenPairs = new HashSet<>();
-    private final List<Interaction> allInteractions = new ArrayList<>();
+    private final List<DrugInteractionResponse.DrugInteraction> allInteractions = new ArrayList<>();
 
     // Directory of your CSV files inside /resources/DrugDatabase
     private final String[] fileNames = {
@@ -25,24 +31,6 @@ public class DrugInteractionService_DDInter {
             "ddinter_downloads_code_V.csv"
     };
 
-    // Represents one interaction record
-    private static class Interaction {
-        String drugA;
-        String drugB;
-        String level;
-
-        Interaction(String drugA, String drugB, String level) {
-            this.drugA = drugA.toLowerCase();
-            this.drugB = drugB.toLowerCase();
-            this.level = level;
-        }
-
-        boolean matches(String d1, String d2) {
-            return (drugA.equalsIgnoreCase(d1) && drugB.equalsIgnoreCase(d2)) ||
-                    (drugA.equalsIgnoreCase(d2) && drugB.equalsIgnoreCase(d1));
-        }
-    }
-
     @PostConstruct
     public void loadAllCSVs() {
         for (String fileName : fileNames) {
@@ -51,16 +39,14 @@ public class DrugInteractionService_DDInter {
                     Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(fullPath)),
                     StandardCharsets.UTF_8))) {
 
-
                 String line;
-                int count = 0;
                 reader.readLine(); // Skip header
                 while ((line = reader.readLine()) != null) {
                     String[] tokens = line.split(",", -1);
                     if (tokens.length >= 5) {
-                        String a = tokens[1].trim().toLowerCase();  // Drug_A
-                        String b = tokens[3].trim().toLowerCase();  // Drug_B
-                        String level = tokens[4].trim();            // Level
+                        String a = tokens[1].trim().toLowerCase();
+                        String b = tokens[3].trim().toLowerCase();
+                        String level = tokens[4].trim();
 
                         String pairKey = String.join("::",
                                 a.compareTo(b) <= 0 ? a : b,
@@ -68,28 +54,56 @@ public class DrugInteractionService_DDInter {
 
                         if (!seenPairs.contains(pairKey)) {
                             seenPairs.add(pairKey);
-                            allInteractions.add(new Interaction(a, b, level));
-                            count++;
+                            allInteractions.add(new DrugInteractionResponse.DrugInteraction(a, b, level));
                         }
                     }
                 }
-
-
             } catch (Exception e) {
                 System.err.println("Error loading file: " + fileName);
                 e.printStackTrace();
             }
         }
-
-
     }
 
-    public Optional<String> getInteractionLevel(String drug1, String drug2) {
-        String d1 = drug1.toLowerCase();
-        String d2 = drug2.toLowerCase();
-        return allInteractions.stream()
-                .filter(i -> i.matches(d1, d2))
-                .map(i -> i.level)
-                .findFirst();
+    public DrugInteractionResponse getInteractionLevel(MedicationSchedule schedule) {
+        if (schedule == null || schedule.getDailySchedules() == null) {
+            return new DrugInteractionResponse(Collections.emptyList());
+        }
+
+        Set<String> uniqueMedications = new HashSet<>();
+        List<DrugInteractionResponse.DrugInteraction> foundInteractions = new ArrayList<>();
+
+        for (MedicationSchedule.DailySchedule dailySchedule : schedule.getDailySchedules()) {
+            if (dailySchedule.getScheduledDoses() != null) {
+                for (MedicationSchedule.ScheduledDose scheduledDose : dailySchedule.getScheduledDoses()) {
+                    if (scheduledDose.getMedications() != null) {
+                        for (MedicationSchedule.MedicationDose medicationDose : scheduledDose.getMedications()) {
+                            uniqueMedications.add(medicationDose.getMedicationName().toLowerCase());
+                        }
+                    }
+                }
+            }
+        }
+
+        List<String> medicationList = new ArrayList<>(uniqueMedications);
+
+        log.info("Unique medications: " + medicationList);
+
+        for (int i = 0; i < medicationList.size(); i++) {
+            for (int j = i + 1; j < medicationList.size(); j++) {
+                String drug1 = medicationList.get(i);
+                String drug2 = medicationList.get(j);
+
+                Optional<DrugInteractionResponse.DrugInteraction> interaction = allInteractions.stream()
+                        .filter(di -> di.matches(drug1, drug2))
+                        .findFirst();
+
+                interaction.ifPresent(foundInteractions::add);
+            }
+        }
+
+        log.info("Found interactions: " + foundInteractions);
+
+        return new DrugInteractionResponse(foundInteractions);
     }
 }

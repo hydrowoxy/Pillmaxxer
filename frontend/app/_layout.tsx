@@ -1,7 +1,6 @@
-import React from 'react';
-import { AuthProvider } from "@/context/auth-context";
-import { ReminderProvider } from "../context/reminder-context";
-import { Slot } from "expo-router";
+import { AuthProvider } from "@/context/auth-context"
+import { ReminderProvider } from "@/context/reminder-context"
+import { Slot } from "expo-router"
 
 export default function Root() {
 
@@ -11,5 +10,5 @@ export default function Root() {
         <Slot />
       </ReminderProvider>
     </AuthProvider>
-  );
+  )
 }
