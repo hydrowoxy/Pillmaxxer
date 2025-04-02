@@ -51,3 +51,13 @@ export type Prescription = {
 	quantity: string;
 	frequency: string;
 };
+
+export type DrugInteractionResponse = {
+	interactionsList: DrugInteraction[];
+}
+
+export type DrugInteraction = {
+	drugA: string;
+	drugB: string;
+	level: string; // Severity level of the interaction
+}
