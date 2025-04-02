@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  SafeAreaView, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
   TouchableOpacity,
   StatusBar,
   ScrollView
@@ -11,9 +11,11 @@ import {
 import { getPatientData } from '../../api/general';
 import { useAuth } from '@/context/auth-context';
 
+const primaryBlue = '#156fe9'; // Define the primary blue color
+
 const ProfileScreen = () => {
   const [patientData, setPatientData] = useState<any>(null);
-  const { user, signOut } = useAuth(); // Get user and logout function
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     const fetchPatientData = async () => {
@@ -42,9 +44,9 @@ const ProfileScreen = () => {
 
   if (!user) {
     return (
-      <SafeAreaView>
-        <View style={styles.container}>
-          <Text>Please sign in to view your profile.</Text>
+      <SafeAreaView style={styles.blueContainer}>
+        <View style={styles.centeredInnerContainer}>
+          <Text style={styles.whiteBody}>Please sign in to view your profile.</Text>
         </View>
       </SafeAreaView>
     );
@@ -52,43 +54,103 @@ const ProfileScreen = () => {
 
   if (!patientData) {
     return (
-      <View style={styles.container}>
-        <Text>Loading profile data...</Text>
-      </View>
+      <SafeAreaView style={styles.blueContainer}>
+        <View style={styles.centeredInnerContainer}>
+          <Text style={styles.whiteBody}>Loading profile data...</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      <ScrollView>
-        <Text>Email: {patientData.email}</Text>
-        <Text>First Name: {patientData.firstName}</Text>
-        <Text>Last Name: {patientData.lastName}</Text>
-        <Text>Phone Number: {patientData.phoneNumber}</Text>
+    <SafeAreaView style={styles.blueContainer}>
+      <StatusBar barStyle="light-content" backgroundColor={primaryBlue} />
+      <View style={styles.scrollContainer}>
+        <ScrollView contentContainerStyle={styles.centeredInnerContainer}>
+          <Text style={styles.whiteTitle}>Your Profile</Text>
+          <View style={styles.infoContainer}>
+            <Text style={styles.whiteLabel}>Email:</Text>
+            <Text style={styles.whiteBody}>{patientData.email}</Text>
+          </View>
+          <View style={styles.infoContainer}>
+            <Text style={styles.whiteLabel}>First Name:</Text>
+            <Text style={styles.whiteBody}>{patientData.firstName}</Text>
+          </View>
+          <View style={styles.infoContainer}>
+            <Text style={styles.whiteLabel}>Last Name:</Text>
+            <Text style={styles.whiteBody}>{patientData.lastName}</Text>
+          </View>
+          <View style={styles.infoContainer}>
+            <Text style={styles.whiteLabel}>Phone Number:</Text>
+            <Text style={styles.whiteBody}>{patientData.phoneNumber}</Text>
+          </View>
+        </ScrollView>
+      </View>
+      <View style={styles.bottomButtonContainer}>
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutButtonText}>Logout</Text>
         </TouchableOpacity>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  blueContainer: {
     flex: 1,
-    padding: 20,
+    backgroundColor: primaryBlue,
+  },
+  scrollContainer: {
+    flex: 1, // Take up most of the vertical space
+  },
+  centeredInnerContainer: {
+    padding: 24,
+    width: '100%',
+    alignItems: 'flex-start',
+  },
+  whiteTitle: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: 'white',
+    marginBottom: 20,
+  },
+  infoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+    width: '100%',
+  },
+  whiteLabel: {
+    fontWeight: 'bold',
+    color: 'white',
+    marginRight: 10,
+    width: 120,
+  },
+  whiteBody: {
+    fontSize: 16,
+    color: 'white',
+    flexShrink: 1,
+  },
+  bottomButtonContainer: {
+    backgroundColor: primaryBlue, // Ensure the button container has the same background
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderTopWidth: StyleSheet.hairlineWidth, // Subtle separator
+    borderTopColor: 'rgba(255, 255, 255, 0.3)',
   },
   logoutButton: {
-    backgroundColor: '#e74c3c', // Red color for logout
-    padding: 15,
-    borderRadius: 5,
+    backgroundColor: primaryBlue,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'white',
     alignItems: 'center',
-    marginTop: 20,
+    width: '100%',
   },
   logoutButtonText: {
     color: 'white',
     fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 
