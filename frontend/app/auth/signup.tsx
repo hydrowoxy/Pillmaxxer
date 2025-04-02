@@ -1,19 +1,18 @@
-import { router, Link } from "expo-router";
-import { Text, TextInput, View, Pressable, StyleSheet } from "react-native";
-import { registerPatient } from "@/api/general";
-import { useState } from "react";
+import { router, Link } from "expo-router"
+import { Text, TextInput, View, Pressable, StyleSheet } from "react-native"
+import { registerPatient } from "@/api/general"
+import { useState } from "react"
 
 /*
  * TODO - fix the actual UI
  */
 
 export default function SignUp() {
-
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
-	const [firstName, setFirstName] = useState("");
-	const [lastName, setLastName] = useState("");
-	const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
+  const [phoneNumber, setPhoneNumber] = useState("")
 
   const handleRegister = async () => {
     try {
@@ -25,35 +24,37 @@ export default function SignUp() {
         lastName,
         phoneNumber,
         deviceToken: ["dummy-token"],
-      });
+      })
 
-      return patient;
+      return patient
     } catch (err) {
-      console.log("[handleRegister] ==>", err);
-      return null;
+      console.log("[handleRegister] ==>", err)
+      return null
     }
-  };
+  }
 
   const handleSignUpPress = async () => {
-    const resp = await handleRegister();
+    const resp = await handleRegister()
     if (resp) {
-      router.replace("/(tabs)");
+      router.replace("/(tabs)")
     } else {
-      console.log("Registration failed");
+      console.log("Registration failed")
     }
-  };
+  }
 
   return (
     <View style={styles.container}>
       {/* Welcome Section */}
       <View style={styles.welcomeContainer}>
-        <Text style={styles.welcomeTitle}>Create Account</Text>
-        <Text style={styles.welcomeSubtitle}>Sign up to get started</Text>
+        <Text style={styles.welcomeTitle}>Get started.</Text>
+        <Text style={styles.welcomeSubtitle}>
+          Can't pillmaxx without an account, buckaroo.
+        </Text>
       </View>
 
       {/* Form Section */}
       <View style={styles.formContainer}>
-			<View>
+        <View>
           <Text style={styles.label}>First Name</Text>
           <TextInput
             placeholder="John"
@@ -116,10 +117,7 @@ export default function SignUp() {
       </View>
 
       {/* Sign Up Button */}
-      <Pressable
-        onPress={handleSignUpPress}
-        style={styles.signUpButton}
-      >
+      <Pressable onPress={handleSignUpPress} style={styles.signUpButton}>
         <Text style={styles.signUpButtonText}>Sign Up</Text>
       </Pressable>
 
@@ -133,7 +131,7 @@ export default function SignUp() {
         </Link>
       </View>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -148,14 +146,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   welcomeTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#333", // Example color
-    marginBottom: 10,
+    fontSize: 36,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 12,
   },
   welcomeSubtitle: {
-    fontSize: 16,
-    color: "#666", // Example color
+    color: "#333",
+    marginBottom: 24,
   },
   formContainer: {
     width: "100%",
@@ -163,27 +161,24 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    fontSize: 14,
-    fontWeight: "medium",
-    color: "#555",
-    marginBottom: 5,
-    marginLeft: 2,
+    fontWeight: "bold",
+    alignSelf: "flex-start",
   },
   input: {
     width: "100%",
-    padding: 10,
     borderWidth: 1,
-    borderColor: "#ccc",
+    padding: 8,
+    borderColor: "#ddd",
     borderRadius: 8,
-    fontSize: 16,
+    marginBottom: 16,
     backgroundColor: "#fff",
   },
   signUpButton: {
-    backgroundColor: "#007bff", // Example color
+    backgroundColor: "#156fe9",
     width: "100%",
     maxWidth: 300,
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 39,
   },
   signUpButtonText: {
     color: "#fff",
@@ -203,7 +198,7 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   signInLinkText: {
-    color: "#007bff", // Example color
+    color: "#156fe9",
     fontWeight: "semibold",
   },
-});
+})

@@ -1,7 +1,7 @@
-import { router, Link } from "expo-router";
-import { Text, TextInput, View, Pressable, StyleSheet } from "react-native";
-import { useState } from "react";
-import { useAuth } from "@/context/auth-context";
+import { router, Link } from "expo-router"
+import { Text, TextInput, View, Pressable, StyleSheet } from "react-native"
+import { useState } from "react"
+import { useAuth } from "@/context/auth-context"
 
 /*
  * TODO - fix the actual UI
@@ -11,38 +11,40 @@ import { useAuth } from "@/context/auth-context";
  * SignIn component handles user authentication through email and password
  */
 export default function SignIn() {
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const { signIn } = useAuth();
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const { signIn } = useAuth()
 
   const handleLogin = async () => {
     try {
-      return await signIn(email, password);
+      return await signIn(email, password)
     } catch (err) {
-      console.log("[handleLogin] ==>", err);
-      return null;
+      console.log("[handleLogin] ==>", err)
+      return null
     }
-  };
+  }
 
   /**
    * Handles the sign-in button press
    */
   const handleSignInPress = async () => {
-    const resp = await handleLogin();
-    if (resp) { // Check if login was successful before navigating
-      router.replace("/(tabs)");
+    const resp = await handleLogin()
+    if (resp) {
+      // Check if login was successful before navigating
+      router.replace("/(tabs)")
     } else {
-        console.log("Login failed!");
+      console.log("Login failed!")
     }
-  };
+  }
 
   return (
     <View style={styles.container}>
       {/* Welcome Section */}
       <View style={styles.welcomeContainer}>
-        <Text style={styles.welcomeTitle}>Welcome Back</Text>
-        <Text style={styles.welcomeSubtitle}>Please sign in to continue</Text>
+        <Text style={styles.welcomeTitle}>Hello again.</Text>
+        <Text style={styles.welcomeSubtitle}>
+          Sign back in to continue pillmaxxing.
+        </Text>
       </View>
 
       {/* Form Section */}
@@ -74,10 +76,7 @@ export default function SignIn() {
       </View>
 
       {/* Sign In Button */}
-      <Pressable
-        onPress={handleSignInPress}
-        style={styles.signInButton}
-      >
+      <Pressable onPress={handleSignInPress} style={styles.signInButton}>
         <Text style={styles.signInButtonText}>Sign In</Text>
       </Pressable>
 
@@ -91,7 +90,7 @@ export default function SignIn() {
         </Link>
       </View>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -106,14 +105,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   welcomeTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#333", // Example color
-    marginBottom: 10,
+    fontSize: 36,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 12,
   },
   welcomeSubtitle: {
-    fontSize: 16,
-    color: "#666", // Example color
+    color: "#333",
+    marginBottom: 24,
   },
   formContainer: {
     width: "100%",
@@ -121,27 +120,24 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    fontSize: 14,
-    fontWeight: "medium",
-    color: "#555",
-    marginBottom: 5,
-    marginLeft: 2,
+    fontWeight: "bold",
+    alignSelf: "flex-start",
   },
   input: {
     width: "100%",
-    padding: 10,
     borderWidth: 1,
-    borderColor: "#ccc",
+    padding: 8,
+    borderColor: "#ddd",
     borderRadius: 8,
-    fontSize: 16,
+    marginBottom: 16,
     backgroundColor: "#fff",
   },
   signInButton: {
-    backgroundColor: "#007bff", // Example color
+    backgroundColor: "#156fe9",
     width: "100%",
     maxWidth: 300,
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 39,
   },
   signInButtonText: {
     color: "#fff",
@@ -161,7 +157,7 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   signUpLinkText: {
-    color: "#007bff", // Example color
+    color: "#156fe9",
     fontWeight: "semibold",
   },
-});
+})
