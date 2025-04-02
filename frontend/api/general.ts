@@ -1,13 +1,21 @@
-import { DailySchedule, DrugInteractionResponse, MedicationSchedule, Prescription, Reminder, ReminderResponse } from "@/types/Types"
+import {
+  DailySchedule,
+  DrugInteractionResponse,
+  MedicationSchedule,
+  Prescription,
+  Reminder,
+  ReminderResponse,
+} from "@/types/Types"
 import { get, post } from "./fetch"
 
 import axios from "axios"
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:8080" // for testing, necessary when env not loaded
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:8080/api" // for testing, necessary when env not loaded
 
 export const getHealth = async () => {
   const data = await get({
-    url: `${API_BASE_URL}/api/health`,
+    url: `${API_BASE_URL}/health`,
   })
   return data
 }
@@ -45,7 +53,7 @@ export const registerPatient = async (patientData: {
 
 // export const getHealth = async () => {
 //   const data = await get({
-//     url: `${API_URL}/api/health`,
+//     url: `${API_URL}/health`,
 //   })
 //   return data
 // }
@@ -74,36 +82,36 @@ export const getReminder = async (
 export const getMedicationSchedule = async (
   userId: string,
   date?: string // Optional date parameter
-) : Promise<DailySchedule> => {
+): Promise<DailySchedule> => {
   try {
-    let url = `/patients/${userId}/schedules`;
+    let url = `/patients/${userId}/schedules`
     if (date) {
-      url += `?date=${date}`;
+      url += `?date=${date}`
     }
-    const response = await api.get(url);
-    const schedule = response.data as DailySchedule;
-    return schedule;
+    const response = await api.get(url)
+    const schedule = response.data as DailySchedule
+    return schedule
   } catch (error: any) {
-    console.error("Error fetching medication schedule:", error);
-    throw error;
+    console.error("Error fetching medication schedule:", error)
+    throw error
   }
-};
+}
 
 export const getMedicationScheduleForRange = async (
   userId: string,
   startDate: string,
   endDate: string
-) : Promise<MedicationSchedule> => {
+): Promise<MedicationSchedule> => {
   try {
-    const url = `/patients/${userId}/schedules/${startDate}/${endDate}`;
-    const response = await api.get(url);
-    const schedule = response.data as MedicationSchedule;
-    return schedule;
+    const url = `/patients/${userId}/schedules/${startDate}/${endDate}`
+    const response = await api.get(url)
+    const schedule = response.data as MedicationSchedule
+    return schedule
   } catch (error: any) {
-    console.error("Error fetching medication schedule for range:", error);
-    throw error;
+    console.error("Error fetching medication schedule for range:", error)
+    throw error
   }
-};
+}
 
 export const createPrescription = async (
   userId: string,
@@ -113,36 +121,44 @@ export const createPrescription = async (
     const response = await api.post(
       `/patients/${userId}/prescriptions/create`,
       prescriptionData
-    );
-    const prescription = response.data as Prescription;
-    return prescription;
+    )
+    const prescription = response.data as Prescription
+    return prescription
   } catch (error: any) {
-    console.error("Error creating prescription:", error);
-    throw error;
+    console.error("Error creating prescription:", error)
+    throw error
   }
-};
+}
 
-export const createMedicationSchedule = async (userId: string): Promise<MedicationSchedule> => {
+export const createMedicationSchedule = async (
+  userId: string
+): Promise<MedicationSchedule> => {
   try {
-    const response = await api.post(`/patients/${userId}/schedules/create`);
-    const schedule = response.data as MedicationSchedule;
-    return schedule;
+    const response = await api.post(`/patients/${userId}/schedules/create`)
+    const schedule = response.data as MedicationSchedule
+    return schedule
   } catch (error: any) {
-    console.error(`Error creating medication schedule for user ${userId}:`, error);
-    throw error;
+    console.error(
+      `Error creating medication schedule for user ${userId}:`,
+      error
+    )
+    throw error
   }
-};
+}
 
 export const checkDrugInteractions = async (
   userId: string,
   schedule: MedicationSchedule
 ): Promise<DrugInteractionResponse> => {
   try {
-    const response = await api.post(`/patients/${userId}/schedules/drug-interactions/check`, schedule);
-    const drugInteractions = response.data as DrugInteractionResponse;
-    return drugInteractions;
+    const response = await api.post(
+      `/patients/${userId}/schedules/drug-interactions/check`,
+      schedule
+    )
+    const drugInteractions = response.data as DrugInteractionResponse
+    return drugInteractions
   } catch (error: any) {
-    console.error("Error checking drug interactions:", error);
-    throw error;
+    console.error("Error checking drug interactions:", error)
+    throw error
   }
-};
+}
