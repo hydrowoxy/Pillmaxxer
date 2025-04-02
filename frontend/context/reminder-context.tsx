@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { getReminder } from '@/api/general';
 import { useAuth } from '@/context/auth-context';
-import { Reminder } from '@/types/Reminder';
+import { Reminder } from '@/types/Types';
 
 interface ReminderContextType {
   reminder: Reminder | null;

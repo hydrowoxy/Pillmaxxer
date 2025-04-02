@@ -47,7 +47,7 @@ public class MedicationScheduleController {
             if (date == null) {
                 date = LocalDate.now();
             }
-
+            log.info("Getting schedule for date: " + date + " for user: " + userId);
             return scheduleService.getScheduleForDate(userId, date)
                     .map(ResponseEntity::ok)
                     .orElseGet(() -> ResponseEntity.notFound().build());
@@ -93,7 +93,7 @@ public class MedicationScheduleController {
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         try {
-
+            log.info("Getting schedule for date range: " + startDate + " to " + endDate);
             return scheduleService.getScheduleForDateRange(userId, startDate, endDate)
                     .map(ResponseEntity::ok)
                     .orElseGet(() -> ResponseEntity.notFound().build());

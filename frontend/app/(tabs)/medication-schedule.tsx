@@ -6,24 +6,34 @@ import {
   ScrollView,
   SafeAreaView,
 } from 'react-native';
+import { getMedicationSchedule } from '../../api/general'; // Adjust the path as needed
+import { MedicationSchedule } from '../../types/Types'; // Assuming you create TypeScript interfaces for your backend models
+import { useAuth } from '@/context/auth-context'
 
-interface MedicationScheduleScreenProps {
-  scheduleId: string; // Or however you're passing the schedule ID
-  fetchSchedule: (scheduleId: string) => Promise<any | null>; // Function to fetch the schedule
-}
-
-const MedicationScheduleScreen: React.FC<MedicationScheduleScreenProps> = ({ scheduleId, fetchSchedule }) => {
-  const [schedule, setSchedule] = useState<any | null>(null);
+const MedicationScheduleScreen = () => {
+  const [schedule, setSchedule] = useState<MedicationSchedule | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const {user, userId} = useAuth();
 
   useEffect(() => {
     const loadSchedule = async () => {
       setLoading(true);
       setError(null);
       try {
-        //const fetchedSchedule = await fetchSchedule(scheduleId);
-        //setSchedule(fetchedSchedule);
+        const today = new Date().toISOString().slice(0, 10); // Get today's date in YYYY-MM-DD format
+        console.log("Fetching Schedule for userId:", userId, "Date:", today);
+        const fetchedSchedule = await getMedicationSchedule(userId!, today);
+        console.log("Fetched Schedule:", fetchedSchedule);
+        if (fetchedSchedule) {
+          setSchedule({
+            userId: userId!,
+            dailySchedules: [fetchedSchedule],
+          });
+        } else {
+          setSchedule(null);
+        }
       } catch (e: any) {
         setError(e.message || 'Failed to load schedule.');
       } finally {
@@ -32,7 +42,7 @@ const MedicationScheduleScreen: React.FC<MedicationScheduleScreenProps> = ({ sch
     };
 
     loadSchedule();
-  }, [scheduleId, fetchSchedule]);
+  }, [userId]);
 
   if (loading) {
     return (
@@ -53,7 +63,7 @@ const MedicationScheduleScreen: React.FC<MedicationScheduleScreenProps> = ({ sch
   if (!schedule || !schedule.dailySchedules || schedule.dailySchedules.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text>No schedule found.</Text>
+        <Text>No schedule found for today.</Text>
       </SafeAreaView>
     );
   }
@@ -61,17 +71,17 @@ const MedicationScheduleScreen: React.FC<MedicationScheduleScreenProps> = ({ sch
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
-        {schedule.dailySchedules.map((dailySchedule:any, index:any) => (
+        {schedule.dailySchedules.map((dailySchedule: any, index: any) => (
           <View key={index} style={styles.dailyScheduleContainer}>
             <Text style={styles.dateText}>
               {dailySchedule.date}
             </Text>
-            {dailySchedule.scheduledDoses.map((dose:any, doseIndex:any) => (
+            {dailySchedule.scheduledDoses.map((dose: any, doseIndex: any) => (
               <View key={doseIndex} style={styles.doseContainer}>
                 <Text style={styles.timeText}>
                   {dose.timeOfDay}
                 </Text>
-                {dose.medications.map((medication:any, medIndex:any) => (
+                {dose.medications.map((medication: any, medIndex: any) => (
                   <View key={medIndex} style={styles.medicationContainer}>
                     <Text style={styles.medicationName}>
                       {medication.medicationName}

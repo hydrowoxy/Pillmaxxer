@@ -69,6 +69,7 @@ public class PatientController {
     @GetMapping("/{userId}")
     public ResponseEntity<Patient> getPatient(@PathVariable String userId) {
         try {
+            log.info("Getting patient data for user: " + userId);
             return patientService.getPatient(userId)
                     .map(patient -> ResponseEntity.ok(patient))
                     .orElse(ResponseEntity.notFound().build());

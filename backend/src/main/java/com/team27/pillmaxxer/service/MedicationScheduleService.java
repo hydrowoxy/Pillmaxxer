@@ -150,9 +150,20 @@ public class MedicationScheduleService {
             return Optional.empty();
         }
 
-        return foundSchedule.getDailySchedules().stream()
+        LocalTime now = LocalTime.now();
+
+        Optional<MedicationSchedule.DailySchedule> dailyScheduleOptional = foundSchedule.getDailySchedules().stream()
                 .filter(ds -> ds.getDate().equals(date))
                 .findFirst();
+
+        dailyScheduleOptional.ifPresent(dailySchedule -> {
+            List<MedicationSchedule.ScheduledDose> futureDoses = dailySchedule.getScheduledDoses().stream()
+                    .filter(sd -> sd.getTimeOfDay().isAfter(now))
+                    .collect(Collectors.toList());
+            dailySchedule.setScheduledDoses(futureDoses);
+        });
+
+        return dailyScheduleOptional;
     }
 
     /*
