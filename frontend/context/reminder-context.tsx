@@ -35,11 +35,26 @@ export const ReminderProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const checkReminder = (reminder: Reminder) => {
+    console.log("Checking reminder:", reminder);
     const now = new Date();
-    const reminderTime = new Date(reminder.date + "T" + reminder.scheduledDose[0].timeOfDay + ":00"); // Assuming timeOfDay is in HH:mm format
-    const timeDifference = reminderTime.getTime() - now.getTime();
+    // Assuming reminder.scheduledDose.timeOfDay is in HH:mm:ss format
+    const reminderTimeParts = reminder.scheduledDose.timeOfDay.split(':');
+    const reminderDateParts = reminder.date.split('-');
 
+    // Create a new Date object with the reminder's date and time
+    const reminderTime = new Date(
+      parseInt(reminderDateParts[0], 10), // Year
+      parseInt(reminderDateParts[1], 10) - 1, // Month (0-indexed)
+      parseInt(reminderDateParts[2], 10), // Day
+      parseInt(reminderTimeParts[0], 10), // Hours
+      parseInt(reminderTimeParts[1], 10), // Minutes
+      parseInt(reminderTimeParts[2], 10)  // Seconds
+    );
+    console.log(reminderTime.getTime(), now.getTime());
+    const timeDifference = reminderTime.getTime() - now.getTime();
+    console.log("Time difference for next reminder "+ timeDifference);
     if (timeDifference >= -5000 && timeDifference <= 5000) { // within 5 seconds
+      console.log("Reminder is within 5 seconds of the current time.");
       setReminderModalContent(reminder);
       setReminderModalVisible(true);
     }

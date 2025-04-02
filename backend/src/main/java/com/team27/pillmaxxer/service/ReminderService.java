@@ -10,7 +10,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -40,9 +39,8 @@ public class ReminderService {
             return r1.getScheduledDose().getTimeOfDay().compareTo(r2.getScheduledDose().getTimeOfDay());
         });
 
-        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        LocalDateTime now = LocalDateTime.now(); // Simplified: no time zone
 
-        // Iterate through the sorted reminders and find the first one that is after now
         for (Reminder reminder : patientReminders) {
             LocalDateTime reminderDateTime = LocalDateTime.of(reminder.getDate(),
                     reminder.getScheduledDose().getTimeOfDay());
@@ -56,7 +54,6 @@ public class ReminderService {
 
     public long getPollingFrequency(Reminder nextReminder) throws ExecutionException, InterruptedException {
         if (nextReminder == null || nextReminder.getScheduledDose() == null) {
-            // No schedule, poll infrequently
             return 18000000; // 5 hours (18000000 ms)
         }
 
@@ -65,33 +62,25 @@ public class ReminderService {
 
         LocalDateTime nextDoseTime = LocalDateTime.of(nextReminderDate, nextReminderTime);
 
-        Duration duration = Duration.between(LocalDateTime.now(ZoneOffset.UTC), nextDoseTime);
+        Duration duration = Duration.between(LocalDateTime.now(), nextDoseTime); // Simplified: no time zone
         long milliseconds = duration.toMillis();
 
-        /*
-         * Optimize polling frequency based on the time until the next dose to reduce
-         * calls to the server and improve performance.
-         * In reality, we would use Firebase Cloud Messaging (FCM) to send push
-         * notifications
-         * BUT here we are using polling to simulate the behavior.
-         */
-        if (milliseconds > 18000000) { // More than 5 hours
-            return 18000000; // 5 hours
-        } else if (milliseconds > 3600000) { // More than 1 hour
-            return 3600000; // 1 hour
-        } else if (milliseconds > 900000) { // More than 15 minutes
-            return 900000; // 15 minutes
-        } else if (milliseconds > 300000) { // More than 5 minutes
-            return 300000; // 5 minutes
-        } else if (milliseconds > 60000) { // More than 1 minute
-            return 60000; // 1 minute
+        if (milliseconds > 18000000) {
+            return 18000000;
+        } else if (milliseconds > 3600000) {
+            return 3600000;
+        } else if (milliseconds > 900000) {
+            return 900000;
+        } else if (milliseconds > 300000) {
+            return 300000;
+        } else if (milliseconds > 60000) {
+            return 60000;
         } else {
-            return 30000; // 30 seconds
+            return 5000;
         }
     }
 
     public void createOrUpdateReminders(MedicationSchedule schedule) throws ExecutionException, InterruptedException {
-        // Clear old reminders
         List<Reminder> oldReminders = reminderRepository.findByuserId(schedule.getUserId());
         for (Reminder reminder : oldReminders) {
             reminderRepository.delete(reminder.getId());
@@ -101,7 +90,7 @@ public class ReminderService {
             return;
         }
 
-        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        LocalDateTime now = LocalDateTime.now(); // Simplified: no time zone
         List<Reminder> reminders = new ArrayList<>();
 
         for (MedicationSchedule.DailySchedule dailySchedule : schedule.getDailySchedules()) {

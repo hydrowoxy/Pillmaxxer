@@ -58,12 +58,6 @@ export function AuthProvider(props: { children: React.ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
-      if (user) {
-        setUserId(user.uid); // Set userId when user logs in
-      } else {
-        setUserId(null); // Clear userId when user logs out
-      }
-      setIsLoading(false);
     });
 
     // Cleanup subscription on unmount
@@ -77,6 +71,9 @@ export function AuthProvider(props: { children: React.ReactNode }) {
     try {
       const response = await login(email, password);
       if (response && response.user) {
+        console.log("User Id: " + response.user.uid);
+        setUser(response.user); 
+        setUserId(response.user.uid); 
         return response.user;
       }
       return undefined;
