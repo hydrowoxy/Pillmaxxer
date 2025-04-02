@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from "react"
 import {
   View,
   Text,
@@ -8,30 +8,31 @@ import {
   ScrollView,
   SafeAreaView,
   Platform,
-} from "react-native";
+} from "react-native"
 import DateTimePicker from "@react-native-community/datetimepicker"
-import { router, useLocalSearchParams } from "expo-router";
-import { useReminder } from "../../context/reminder-context";
-import { createPrescription, createMedicationSchedule } from "../../api/general";
-import { useAuth } from "@/context/auth-context";
-import { Prescription } from "@/types/Types";
+import { router, useLocalSearchParams } from "expo-router"
+import { useReminder } from "../../context/reminder-context"
+import { createPrescription, createMedicationSchedule } from "../../api/general"
+import { useAuth } from "@/context/auth-context"
+import { Prescription } from "@/types/Types"
 
 const MedicationFormScreen = () => {
-  const { autofill } = useLocalSearchParams<{ autofill: string }>();
-  const medication = autofill ? JSON.parse(autofill) : {};
-  const { userId } = useAuth();
-  const { fetchReminder } = useReminder();
+  const { autofill } = useLocalSearchParams<{ autofill: string }>()
+  const medication = autofill ? JSON.parse(autofill) : {}
 
-  const [medicationName, setMedicationName] = useState(medication?.name || "");
-  const [dosage, setDosage] = useState(medication?.dosage || "");
-  const [frequency, setFrequency] = useState(medication?.frequency || "");
+  const { userId } = useAuth()
+  const { fetchReminder } = useReminder()
+
+  const [medicationName, setMedicationName] = useState(medication?.name || "")
+  const [dosage, setDosage] = useState(medication?.dosage || "")
+  const [frequency, setFrequency] = useState(medication?.frequency || "")
   const [startDate, setStartDate] = useState(new Date())
   const [endDate, setEndDate] = useState(new Date())
-  const [instructions, setInstructions] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const [submissionError, setSubmissionError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [instructions, setInstructions] = useState("")
+  const [quantity, setQuantity] = useState("")
+  const [submissionError, setSubmissionError] = useState<string | null>(null)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [message, setMessage] = useState<string | null>(null)
 
   const [showStartDatePicker, setShowStartDatePicker] = useState(false)
   const [showEndDatePicker, setShowEndDatePicker] = useState(false)
@@ -53,15 +54,15 @@ const MedicationFormScreen = () => {
 
   const handleSave = async () => {
     if (!userId) {
-      console.error("User ID not available.");
-      setSubmissionError("User ID not available.");
-      setMessage("User ID not available.");
-      return;
+      console.error("User ID not available.")
+      setSubmissionError("User ID not available.")
+      setMessage("User ID not available.")
+      return
     }
 
-    setLoading(true);
-    setSubmissionError(null);
-    setMessage("Creating prescription...");
+    setLoading(true)
+    setSubmissionError(null)
+    setMessage("Creating prescription...")
 
     const prescriptionData: Prescription = {
       userId,
@@ -72,54 +73,59 @@ const MedicationFormScreen = () => {
       instructions,
       quantity,
       frequency,
-    };
+    }
 
     try {
-      console.log("Creating prescription with data:", prescriptionData);
-      const createdPrescription = await createPrescription(userId, prescriptionData);
-      console.log("Prescription created successfully:", createdPrescription);
-      setMessage("Prescription created successfully. Creating schedule...");
+      console.log("Creating prescription with data:", prescriptionData)
+      const createdPrescription = await createPrescription(
+        userId,
+        prescriptionData
+      )
+      console.log("Prescription created successfully:", createdPrescription)
+      setMessage("Prescription created successfully. Creating schedule...")
 
       // Add a 1 second buffer
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000))
 
-      console.log("Creating a new schedule for this user: ", userId);
-      const createdSchedule = await createMedicationSchedule(userId);
-      console.log("Schedule created successfully:", createdSchedule);
-      setMessage("Schedule created successfully. Updating reminders...");
+      console.log("Creating a new schedule for this user: ", userId)
+      const createdSchedule = await createMedicationSchedule(userId)
+      console.log("Schedule created successfully:", createdSchedule)
+      setMessage("Schedule created successfully. Updating reminders...")
 
       // Add a 1 second buffer
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000))
 
-      await fetchReminder(); // Fetch reminders again to update the context
-      setMessage("Prescription and schedule updated!");
+      await fetchReminder() // Fetch reminders again to update the context
+      setMessage("Prescription and schedule updated!")
 
       setTimeout(() => {
-        router.push("/(tabs)/medication-schedule");
-      }, 2000); // Redirect after a short delay
+        router.push("/(tabs)/medication-schedule")
+      }, 2000) // Redirect after a short delay
     } catch (error: any) {
-      console.error("Failed to create prescription:", error);
+      console.error("Failed to create prescription:", error)
       setSubmissionError(
         error?.response?.data?.message ||
           error.message ||
           "Failed to create prescription."
-      );
+      )
       setMessage(
         error?.response?.data?.message ||
           error.message ||
           "Failed to create prescription."
-      );
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.innerContainer}>
         <Text style={styles.title}>Track a new prescription.</Text>
         <Text style={styles.subtitle}>
-          Fill out all the fields please, so we can help you track your medication.
+          {autofill
+            ? "Fill out all the fields below!"
+            : "We've filled out what we can parse from your image. Fill out the rest, or change anything that doesn't seem quite right!"}
         </Text>
 
         <Text style={styles.label}>Medication Name</Text>
@@ -129,7 +135,7 @@ const MedicationFormScreen = () => {
           onChangeText={setMedicationName}
         />
 
-        <Text style={styles.label}>Dosage (mg, mL, etc..)</Text>
+        <Text style={styles.label}>Dosage (e.g., mg, mL)</Text>
         <TextInput
           style={styles.input}
           value={dosage}
@@ -176,14 +182,14 @@ const MedicationFormScreen = () => {
           multiline
         />
 
-        <Text style={styles.label}>Quantity (number of tablets, number of tbsps, etc ...)</Text>
+        <Text style={styles.label}>Quantity (e.g., # tablets or tbsp)</Text>
         <TextInput
           style={styles.input}
           value={quantity}
           onChangeText={setQuantity}
         />
 
-        <Text style={styles.label}>Frequency ("once daily", "twice daily", etc ...)</Text>
+        <Text style={styles.label}>Frequency (e.g., once or twice daily)</Text>
         <TextInput
           style={styles.input}
           value={frequency}
@@ -191,13 +197,11 @@ const MedicationFormScreen = () => {
         />
 
         <TouchableOpacity style={styles.button} onPress={handleSave}>
-          <Text style={styles.buttonText}>Submit</Text>
+          <Text style={styles.buttonText}>Looks good to me!</Text>
         </TouchableOpacity>
 
         {message && (
-          <Text style={{ color: "blue", marginVertical: 10 }}>
-            {message}
-          </Text>
+          <Text style={{ color: "blue", marginVertical: 10 }}>{message}</Text>
         )}
         {submissionError && (
           <Text style={{ color: "red", marginVertical: 10 }}>
@@ -267,4 +271,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default MedicationFormScreen;
+export default MedicationFormScreen

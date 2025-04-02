@@ -8,6 +8,7 @@ import {
 } from "react-native"
 import { router, useLocalSearchParams } from "expo-router"
 
+// DEPRECATED, DO NOT USE
 const MedicationFormScreen = () => {
   const { autofill } = useLocalSearchParams<{ autofill: string }>()
   const medication = autofill ? JSON.parse(autofill) : {}
