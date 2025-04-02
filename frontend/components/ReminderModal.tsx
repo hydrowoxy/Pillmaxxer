@@ -17,10 +17,9 @@ interface ReminderModalProps {
   reminder: Reminder | null;
 }
 
-
 const ReminderModal = ({ isVisible, setIsVisible, reminder }: ReminderModalProps) => {
   const slideAnim = useRef(new Animated.Value(0)).current;
-  const modalHeight = 250; // Adjusted height for reminder content
+  const modalHeight = 250;
   const router = useRouter();
 
   useEffect(() => {
@@ -40,13 +39,26 @@ const ReminderModal = ({ isVisible, setIsVisible, reminder }: ReminderModalProps
   }, [isVisible, slideAnim]);
 
   const closeModal = () => {
-    Animated.timing(slideAnim, {
-      toValue: 0,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      setIsVisible(false);
-    });
+    setIsVisible(false);
+  };
+
+  const logTimingInfo = () => {
+    if (!reminder) return; // Ensure reminder exists before logging
+    const now = new Date();
+    const reminderTimeParts = reminder.scheduledDose.timeOfDay.split(':');
+    const reminderDateParts = reminder.date.split('-');
+
+    const reminderTime = new Date(
+      parseInt(reminderDateParts[0], 10),
+      parseInt(reminderDateParts[1], 10) - 1,
+      parseInt(reminderDateParts[2], 10),
+      parseInt(reminderTimeParts[0], 10),
+      parseInt(reminderTimeParts[1], 10),
+      parseInt(reminderTimeParts[2], 10)
+    );
+    console.log(reminderTime.getTime(), now.getTime());
+    const timeDifference = reminderTime.getTime() - now.getTime();
+    console.log("TIME INTERVAL BETWEEN SCHEDULED TIME AND ACTUAL REMINDER RECEIVED " + timeDifference);
   };
 
   const handleOverlayPress = () => {
@@ -55,7 +67,7 @@ const ReminderModal = ({ isVisible, setIsVisible, reminder }: ReminderModalProps
 
   const handleGoToSchedule = () => {
     closeModal();
-    router.push('/medication-schedule'); // Navigate to medication schedule
+    router.push('/medication-schedule');
   };
 
   const translateY = slideAnim.interpolate({
@@ -63,7 +75,10 @@ const ReminderModal = ({ isVisible, setIsVisible, reminder }: ReminderModalProps
     outputRange: [modalHeight, 0],
   });
 
-  if (!reminder) return null; // Don't render if no reminder data
+  if (!reminder) return null;
+
+  // Log timing info before rendering modal
+  logTimingInfo();
 
   return (
     <Modal visible={isVisible} transparent={true} animationType="none">
