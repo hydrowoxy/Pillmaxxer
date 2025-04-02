@@ -58,7 +58,8 @@ const ReminderModal = ({ isVisible, setIsVisible, reminder }: ReminderModalProps
     );
     console.log(reminderTime.getTime(), now.getTime());
     const timeDifference = reminderTime.getTime() - now.getTime();
-    console.log("TIME INTERVAL BETWEEN SCHEDULED TIME AND ACTUAL REMINDER RECEIVED " + timeDifference);
+    const absoluteTimeDifference = Math.abs(timeDifference);
+    console.log("TIME INTERVAL BETWEEN SCHEDULED TIME AND ACTUAL REMINDER RECEIVED " + absoluteTimeDifference);
   };
 
   const handleOverlayPress = () => {

@@ -129,7 +129,7 @@ public class MedicationScheduleService {
      * future.
      */
     private List<LocalTime> generateTimes(String frequency) {
-        return switch (frequency.toLowerCase()) {
+        return switch (frequency.toLowerCase().trim()) {
             case "once daily" -> List.of(LocalTime.now().plusMinutes(2)); // HARD CODE THIS FOR DEMO PURPOSES
             case "twice daily" -> List.of(LocalTime.of(9, 0), LocalTime.of(21, 0));
             case "three times daily" -> List.of(LocalTime.of(8, 0), LocalTime.of(14, 0), LocalTime.of(20, 0));
@@ -150,7 +150,8 @@ public class MedicationScheduleService {
             return Optional.empty();
         }
 
-        LocalTime now = LocalTime.now();
+        LocalTime now = LocalTime.now().minusMinutes(4); // THIS IS FOR DEMO PURPOSES SO THE CURRENT REMINDER SCHEDULED
+                                                         // DOSE DOES NOT GO AWAY
 
         Optional<MedicationSchedule.DailySchedule> dailyScheduleOptional = foundSchedule.getDailySchedules().stream()
                 .filter(ds -> ds.getDate().equals(date))

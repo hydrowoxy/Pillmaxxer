@@ -7,14 +7,16 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import { createPrescription } from "../../api/general"; // Adjust the path as needed
-import { useAuth } from "@/context/auth-context"; // Assuming you have an auth context for userId
+import { useReminder } from "../../context/reminder-context";
+import { createPrescription, createMedicationSchedule } from "../../api/general";
+import { useAuth } from "@/context/auth-context";
 import { Prescription } from "@/types/Types";
 
 const MedicationFormScreen = () => {
   const { autofill } = useLocalSearchParams<{ autofill: string }>();
   const medication = autofill ? JSON.parse(autofill) : {};
-  const { userId } = useAuth(); // Get the userId from your auth context
+  const { userId } = useAuth();
+  const { fetchReminder } = useReminder();
 
   const [medicationName, setMedicationName] = useState(medication?.name || "");
   const [dosage, setDosage] = useState(medication?.dosage || "");
@@ -24,21 +26,23 @@ const MedicationFormScreen = () => {
   const [instructions, setInstructions] = useState("");
   const [quantity, setQuantity] = useState("");
   const [submissionError, setSubmissionError] = useState<string | null>(null);
-  const [submissionSuccess, setSubmissionSuccess] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [message, setMessage] = useState<string | null>(null);
 
   const handleSave = async () => {
     if (!userId) {
       console.error("User ID not available.");
       setSubmissionError("User ID not available.");
+      setMessage("User ID not available.");
       return;
     }
 
     setLoading(true);
     setSubmissionError(null);
-    setSubmissionSuccess(false);
+    setMessage("Creating prescription...");
 
     const prescriptionData: Prescription = {
+      userId,
       medicationName,
       dosage,
       startDate,
@@ -52,23 +56,37 @@ const MedicationFormScreen = () => {
       console.log("Creating prescription with data:", prescriptionData);
       const createdPrescription = await createPrescription(userId, prescriptionData);
       console.log("Prescription created successfully:", createdPrescription);
-      setSubmissionSuccess(true);
-      // // Optionally reset the form after successful submission
-      // setMedicationName("");
-      // setDosage("");
-      // setFrequency("");
-      // setStartDate("");
-      // setEndDate("");
-      // setInstructions("");
-      // setQuantity("");
+      setMessage("Prescription created successfully. Creating schedule...");
 
+      // Add a 1 second buffer
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      console.log("Creating a new schedule for this user: ", userId);
+      const createdSchedule = await createMedicationSchedule(userId);
+      console.log("Schedule created successfully:", createdSchedule);
+      setMessage("Schedule created successfully. Updating reminders...");
+
+      // Add a 1 second buffer
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      await fetchReminder(); // Fetch reminders again to update the context
+      setMessage("Prescription and schedule updated!");
 
       setTimeout(() => {
-        router.push("/(tabs)");
+        router.push("/(tabs)/medication-schedule");
       }, 2000); // Redirect after a short delay
     } catch (error: any) {
       console.error("Failed to create prescription:", error);
-      setSubmissionError(error?.response?.data?.message || error.message || "Failed to create prescription.");
+      setSubmissionError(
+        error?.response?.data?.message ||
+          error.message ||
+          "Failed to create prescription."
+      );
+      setMessage(
+        error?.response?.data?.message ||
+          error.message ||
+          "Failed to create prescription."
+      );
     } finally {
       setLoading(false);
     }
@@ -78,9 +96,9 @@ const MedicationFormScreen = () => {
     <View style={styles.container}>
       <Text style={styles.title}>Submit your prescription data</Text>
 
-      {submissionSuccess && (
-        <Text style={{ color: "green", marginBottom: 10 }}>
-          Prescription created successfully!
+      {message && (
+        <Text style={{ color: "blue", marginBottom: 10 }}>
+          {message}
         </Text>
       )}
       {submissionError && (
@@ -96,7 +114,7 @@ const MedicationFormScreen = () => {
         style={styles.input}
       />
 
-      <Text style={styles.label}>Dosage (e.g., 500mg, 1 tablet)</Text>
+      <Text style={styles.label}>Dosage (e.g., 500mg, 50 mL)</Text>
       <TextInput value={dosage} onChangeText={setDosage} style={styles.input} />
 
       <Text style={styles.label}>Frequency (e.g., Once daily, Twice a day)</Text>
@@ -129,7 +147,7 @@ const MedicationFormScreen = () => {
         style={styles.input}
       />
 
-      <Text style={styles.label}>Quantity (e.g., 30, 2 bottles)</Text>
+      <Text style={styles.label}>Quantity (e.g., 2 tablets, 1 tablespoon)</Text>
       <TextInput
         value={quantity}
         onChangeText={setQuantity}

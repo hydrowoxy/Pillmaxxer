@@ -121,3 +121,14 @@ export const createPrescription = async (
     throw error;
   }
 };
+
+export const createMedicationSchedule = async (userId: string): Promise<MedicationSchedule> => {
+  try {
+    const response = await api.post(`/patients/${userId}/schedules/create`);
+    const schedule = response.data as MedicationSchedule;
+    return schedule;
+  } catch (error: any) {
+    console.error(`Error creating medication schedule for user ${userId}:`, error);
+    throw error;
+  }
+};

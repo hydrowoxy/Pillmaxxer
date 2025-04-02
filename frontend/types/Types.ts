@@ -42,6 +42,7 @@ export type DailySchedule = {
 }
 
 export type Prescription = {
+	userId: string;
 	medicationName: string;
 	dosage: string;
 	startDate: string; // Date in YYYY-MM-DD format

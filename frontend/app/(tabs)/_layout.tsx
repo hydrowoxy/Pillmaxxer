@@ -1,7 +1,6 @@
 import { Redirect, Slot, Tabs } from "expo-router"
 import { useAuth } from "@/context/auth-context"
 import { StyleSheet } from "react-native"
-import { Ionicons } from "@expo/vector-icons"
 import { useReminder } from "../../context/reminder-context" // Import useReminder
 import ReminderModal from "../../components/ReminderModal" // Import ReminderModal
 import { Reminder } from "@/types/Types" // Import Reminder type
