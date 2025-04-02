@@ -25,9 +25,11 @@ export const ReminderProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (userId) {
         console.log(`Fetching reminder for userId: ${userId}`);
         const data = await getReminder(userId);
-        setReminder(data.reminder);
         setPollInterval(data.pollInterval || 3600000); // Update poll interval if provided
-        checkReminder(data.reminder);
+        if (data.reminder){
+          setReminder(data.reminder);
+          checkReminder(data.reminder);
+        }
       }
     } catch (error) {
       console.error('Error fetching reminders:', error);
@@ -52,9 +54,9 @@ export const ReminderProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     );
     console.log(reminderTime.getTime(), now.getTime());
     const timeDifference = reminderTime.getTime() - now.getTime();
-    console.log("Time difference for next reminder "+ timeDifference);
+    console.log("Time until next reminder "+ timeDifference);
     if (timeDifference >= -5000 && timeDifference <= 5000) { // within 5 seconds
-      console.log("Reminder is within 5 seconds of the current time.");
+      console.log("Reminder is within 5 seconds of the current time. Displaying modal.");
       setReminderModalContent(reminder);
       setReminderModalVisible(true);
     }
