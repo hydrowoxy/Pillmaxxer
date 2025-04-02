@@ -85,13 +85,14 @@ const MedicationScheduleScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
+      <ScrollView contentContainerStyle={styles.innerContainer}>
+        <Text style={styles.title}>Your road to pillmaxxing.</Text>
         {drugInteractionsResponse &&
           drugInteractionsResponse.interactionsList &&
           drugInteractionsResponse.interactionsList.length > 0 && (
             <View style={styles.interactionContainer}>
               <Text style={styles.interactionTitle}>
-                Drug Interactions Detected:
+                Drug Interactions Detected!
               </Text>
               {drugInteractionsResponse.interactionsList.map(
                 (interaction, index) => (
@@ -112,9 +113,8 @@ const MedicationScheduleScreen = () => {
           drugInteractionsResponse.interactionsList &&
           drugInteractionsResponse.interactionsList.length === 0 && (
             <View style={styles.interactionContainer}>
-              <Text style={styles.interactionTitle}>Drug Interactions:</Text>
               <Text style={styles.noInteraction}>
-                No significant drug interactions found.
+                No significant or dangerous drug interactions found. Yay!
               </Text>
             </View>
           )}
@@ -122,7 +122,7 @@ const MedicationScheduleScreen = () => {
         {!schedule ||
         !schedule.dailySchedules ||
         schedule.dailySchedules.length === 0 ? (
-          <Text>No schedule found for today.</Text>
+          <Text>No schedule found for today! You're off the hook for now.</Text>
         ) : (
           schedule.dailySchedules.map((dailySchedule: any, index: any) => (
             <View key={index} style={styles.dailyScheduleContainer}>
@@ -135,8 +135,12 @@ const MedicationScheduleScreen = () => {
                       <Text style={styles.medicationName}>
                         {medication.medicationName}
                       </Text>
-                      <Text>Dosage: {medication.dosage}</Text>
-                      <Text>Instructions: {medication.instructions}</Text>
+                      <Text style={styles.body}>
+                        Dosage: {medication.dosage}
+                      </Text>
+                      <Text style={styles.body}>
+                        Instructions: {medication.instructions}
+                      </Text>
                     </View>
                   ))}
                 </View>
@@ -152,15 +156,29 @@ const MedicationScheduleScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f9f9f9",
+  },
+  innerContainer: {
+    alignItems: "flex-start",
+    justifyContent: "flex-start",
+    padding: 24,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: "#333",
+    alignSelf: "flex-start",
+    marginBottom: 12,
   },
   interactionContainer: {
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: "#ff9999",
-    backgroundColor: "#ffe6e6",
-    padding: 15,
+    borderColor: "#ddd",
+    padding: 12,
     borderRadius: 5,
+    width: "100%",
   },
   interactionTitle: {
     fontSize: 16,
@@ -172,9 +190,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     padding: 8,
     backgroundColor: "#fff",
-    borderRadius: 3,
-    borderColor: "#ffcccc",
+    borderRadius: 4,
+    borderColor: "#ddd",
     borderWidth: 1,
+    width: "100%",
   },
   interactionPair: {
     fontWeight: "bold",
@@ -185,37 +204,43 @@ const styles = StyleSheet.create({
   },
   noInteraction: {
     fontStyle: "italic",
-    color: "#339933",
+    color: "#156fe9",
   },
   dailyScheduleContainer: {
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#ddd",
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 4,
+    width: "100%",
   },
   dateText: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 8,
   },
   doseContainer: {
-    marginBottom: 10,
     padding: 10,
-    borderWidth: 1,
-    borderColor: "#eee",
-    borderRadius: 5,
+    borderRadius: 4,
+    color: "white",
+    backgroundColor: "#156fe9",
   },
   timeText: {
     fontWeight: "bold",
+    fontStyle: "italic",
     marginBottom: 5,
+    color: "white",
   },
   medicationContainer: {
-    marginLeft: 10,
     marginBottom: 5,
+    color: "white",
+  },
+  body: {
+    color: "white",
   },
   medicationName: {
     fontWeight: "bold",
+    color: "white",
   },
   errorText: {
     color: "red",

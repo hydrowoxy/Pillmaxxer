@@ -3,10 +3,9 @@ import {
   DrugInteractionResponse,
   MedicationSchedule,
   Prescription,
-  Reminder,
   ReminderResponse,
 } from "@/types/Types"
-import { get, post } from "./fetch"
+import { get } from "./fetch"
 
 import axios from "axios"
 
@@ -50,13 +49,6 @@ export const registerPatient = async (patientData: {
     throw error
   }
 }
-
-// export const getHealth = async () => {
-//   const data = await get({
-//     url: `${API_URL}/health`,
-//   })
-//   return data
-// }
 
 export const getPatientData = async (userId: string) => {
   console.log("Fetching patient data for userId:", userId)
