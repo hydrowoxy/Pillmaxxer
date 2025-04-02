@@ -13,8 +13,3 @@ export interface ScheduleItem {
     scheduleItems.push(item);
   }
   
-  // sobbing
-  export function clearSchedule() {
-    scheduleItems.length = 0;
-  }
-  

@@ -1,13 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { scheduleItems } from '@/context/schedule-context';
-
-interface ScheduleItem {
-  id: string;
-  title: string;
-  time: string;
-}
+import { scheduleItems, ScheduleItem } from '@/context/schedule-context';
 
 export default function Schedule() {
   const router = useRouter();
@@ -16,14 +10,14 @@ export default function Schedule() {
   useFocusEffect(
     useCallback(() => {
       console.log("Schedule screen focused. Current scheduleItems:", scheduleItems);
-      setItems([...scheduleItems]); 
+      setItems([...scheduleItems]);
     }, [])
   );
 
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.header}>Today's Schedule</Text>
+        <Text style={styles.header}>Today's Scheduled Drugs</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => router.push('/(tabs)/form')}
@@ -32,15 +26,17 @@ export default function Schedule() {
         </TouchableOpacity>
       </View>
       {items.length === 0 ? (
-        <Text style={styles.emptyMessage}>No schedule items yet.</Text>
+        <Text style={styles.emptyMessage}>No drugs scheduled yet.</Text>
       ) : (
         <FlatList
           data={items}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <View style={styles.itemContainer}>
-              <Text style={styles.itemTitle}>{item.title}</Text>
-              <Text style={styles.itemTime}>{item.time}</Text>
+              <Text style={styles.itemDrugName}>Drug: {item.drugName}</Text>
+              <Text style={styles.itemDetail}>Time: {item.timeOfDay}</Text>
+              <Text style={styles.itemDetail}>Quantity: {item.quantity}</Text>
+              <Text style={styles.itemDetail}>Dosage: {item.dosage}</Text>
             </View>
           )}
           contentContainerStyle={styles.listContainer}
@@ -95,11 +91,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 15,
   },
-  itemTitle: {
+  itemDrugName: {
     fontSize: 18,
     fontWeight: '600',
   },
-  itemTime: {
+  itemDetail: {
     fontSize: 16,
     color: '#555',
     marginTop: 5,
