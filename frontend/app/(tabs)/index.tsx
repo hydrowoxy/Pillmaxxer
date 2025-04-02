@@ -7,6 +7,7 @@ export default function HomeScreen() {
       <Text style={styles.title}>We are ready to PillMaxx !</Text>
 
       <Link href="/scan">GO TO IMAGE SCAN TEST</Link>
+      <Link href="/schedule">GO TO SCHEDULE</Link>
     </View>
   )
 }
