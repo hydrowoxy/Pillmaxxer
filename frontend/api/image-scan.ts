@@ -1,6 +1,6 @@
 import { postFiles } from "./fetch"
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:8080" // for testing, when env not loaded
+const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:8080" // for testing, necessary when env not loaded
 
 interface postImageUploadProps {
   params: {

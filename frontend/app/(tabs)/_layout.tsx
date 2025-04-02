@@ -1,27 +1,32 @@
-import { Redirect, Tabs } from "expo-router";
-import { useAuth } from "@/context/auth-context";
-import { StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useReminder } from "../../context/reminder-context"; // Import useReminder
-import ReminderModal from '../../components/ReminderModal'; // Import ReminderModal
-import { Reminder } from '@/types/Reminder'; // Import Reminder type
+import { Redirect, Slot, Tabs } from "expo-router"
+import { useAuth } from "@/context/auth-context"
+import { StyleSheet } from "react-native"
+import { Ionicons } from "@expo/vector-icons"
+import { useReminder } from "../../context/reminder-context" // Import useReminder
+import ReminderModal from "../../components/ReminderModal" // Import ReminderModal
+import { Reminder } from "@/types/Reminder" // Import Reminder type
 
 export default function AppLayout() {
-  const { user } = useAuth();
-  const { isReminderModalVisible, setReminderModalVisible, reminderModalContent } = useReminder(); // Get context values
+  const { user } = useAuth()
+  const {
+    isReminderModalVisible,
+    setReminderModalVisible,
+    reminderModalContent,
+  } = useReminder() // Get context values
 
   if (!user) {
-    return <Redirect href="../auth/login" />;
+    return <Redirect href="../auth/login" />
   }
 
   return (
     <>
+      {/* <Slot /> */}
       <Tabs
         screenOptions={{
           tabBarShowLabel: false,
           tabBarStyle: styles.tabBarStyle,
           tabBarItemStyle: { justifyContent: "center" },
-          animation: 'shift',
+          animation: "shift",
         }}
       >
         <Tabs.Screen
@@ -80,8 +85,8 @@ export default function AppLayout() {
         />
       )}
     </>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   tabBarStyle: {
@@ -96,4 +101,4 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-});
+})

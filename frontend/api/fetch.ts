@@ -40,7 +40,7 @@ export const post = async ({ url, body }: PostProps) => {
 
   console.log("Request Body:", requestBody)
   console.log("Request URL:", url)
-  
+
   const response = await fetch(url, {
     method: "POST",
     headers,
@@ -53,7 +53,6 @@ export const post = async ({ url, body }: PostProps) => {
     return data
   }
   throw data
-
 }
 
 export const postFiles = async ({ url, body }: PostProps) => {
