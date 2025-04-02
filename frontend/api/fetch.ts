@@ -1,4 +1,4 @@
-import { getFileType, getLocalFileBlob } from "@/utils/files"
+import { getFileType } from "@/utils/files"
 import * as FileSystem from "expo-file-system"
 
 interface GetProps {
@@ -38,8 +38,8 @@ export const post = async ({ url, body }: PostProps) => {
   const headers: Record<string, string> = { "Content-Type": "application/json" }
   const requestBody = JSON.stringify(body)
 
-  console.log("Request Body:", requestBody)
-  console.log("Request URL:", url)
+  // console.log("Request Body:", requestBody)
+  // console.log("Request URL:", url)
 
   const response = await fetch(url, {
     method: "POST",
@@ -47,8 +47,8 @@ export const post = async ({ url, body }: PostProps) => {
     body: requestBody,
   })
   const data = await response.json()
-  console.log("Response Data:", data)
-  console.log("Response Status:", response.status)
+  // console.log("Response Data:", data)
+  // console.log("Response Status:", response.status)
   if (response.ok) {
     return data
   }
@@ -58,31 +58,13 @@ export const post = async ({ url, body }: PostProps) => {
 export const postFiles = async ({ url, body }: PostProps) => {
   for (const key of Object.keys(body)) {
     try {
-      if (FileSystem.FileSystemUploadType) {
-        // production (mobile) version
-        return await FileSystem.uploadAsync(url, body[key], {
-          uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-          fieldName: key,
-          mimeType: getFileType(body[key]),
-        })
-      } else {
-        // testing (local) version
-        const formData = new FormData()
-        formData.append(key, await getLocalFileBlob(body[key]))
-
-        const response = await fetch(url, {
-          method: "POST",
-          body: formData,
-        })
-
-        const data = await response.json()
-
-        if (response.ok) {
-          return data
-        }
-
-        throw data
-      }
+      return await FileSystem.uploadAsync(url, body[key], {
+        uploadType: FileSystem.FileSystemUploadType
+          ? FileSystem.FileSystemUploadType.MULTIPART
+          : undefined,
+        fieldName: key,
+        mimeType: getFileType(body[key]),
+      })
     } catch (error) {
       console.error("Upload failed:", error)
     }

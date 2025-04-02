@@ -9,13 +9,23 @@ export default function HomeScreen() {
         Imagine overdosing. Imagine underdosing. Honestly, kind of embarrassing.
         How about we track a new prescription together?
       </Text>
+
       <TouchableOpacity
         style={styles.button}
         onPress={() => {
           router.push("/(tabs)/scan")
         }}
       >
-        <Text style={styles.buttonText}>Let me take a photo.</Text>
+        <Text style={styles.buttonText}>Start with a photo.</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => {
+          router.push("/(tabs)/prescription-form")
+        }}
+      >
+        <Text style={styles.buttonText}>Start with a form.</Text>
       </TouchableOpacity>
     </View>
   )
@@ -28,17 +38,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#156fe9",
     padding: 20,
+    gap: 8,
   },
   title: {
     fontSize: 45,
     fontWeight: "700",
     color: "#FFF",
     textTransform: "uppercase",
-    marginBottom: 10,
+    marginBottom: 8,
   },
   subtitle: {
     color: "#FFF",
-    marginBottom: 40,
+    marginBottom: 28,
     textAlign: "center",
   },
   button: {
