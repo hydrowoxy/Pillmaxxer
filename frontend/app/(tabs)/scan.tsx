@@ -67,10 +67,8 @@ export default function ScanImage() {
         </TouchableOpacity>
       )}
 
-      {loading && <Text>Loading...</Text>}
-
       <Link href="/" style={styles.link}>
-        Take me back home, please.
+        Nah, take me back home.
       </Link>
     </View>
   )
@@ -81,28 +79,29 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#156fe9",
     padding: 20,
     gap: 16,
   },
   title: {
     fontSize: 24,
-    fontWeight: "600",
-    color: "#333",
+    fontWeight: "700",
+    color: "#FFF",
+    marginBottom: 10,
   },
   button: {
-    backgroundColor: "#0066cc",
     paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
+    paddingHorizontal: 30,
+    backgroundColor: "#FFF",
+    borderRadius: 30,
   },
   buttonDisabled: {
-    backgroundColor: "#99ccff",
+    opacity: 0.5,
   },
   buttonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "600",
+    color: "#156fe9",
+    textAlign: "center",
   },
   image: {
     width: 250,
@@ -113,7 +112,7 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
   },
   link: {
-    color: "#0066cc",
+    color: "#fff",
     fontSize: 14,
     textDecorationLine: "underline",
   },
