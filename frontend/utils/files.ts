@@ -1,5 +1,3 @@
-import fs from "fs"
-
 export const getFileType = (uri: string) => {
   const filename = uri.split("/").pop() || ""
   const match = /\.(\w+)$/.exec(filename)
@@ -7,8 +5,9 @@ export const getFileType = (uri: string) => {
   return type
 }
 
-export const getLocalFileBlob = (path: string) => {
-  return base64ToBlob(localPathToBase64(path))
+export const getLocalFileBlob = async (path: string) => {
+  const fs = await import("fs")
+  return base64ToBlob(localPathToBase64(path, fs))
 }
 
 const base64ToBlob = (base64: string) => {
@@ -21,7 +20,7 @@ const base64ToBlob = (base64: string) => {
   return new Blob([new Uint8Array(array)], { type: mimeString })
 }
 
-const localPathToBase64 = (path: string) => {
+const localPathToBase64 = (path: string, fs: typeof import("fs")) => {
   const data = fs.readFileSync(path, { encoding: "base64" })
   return `data:image/jpeg;base64,${data}`
 }
