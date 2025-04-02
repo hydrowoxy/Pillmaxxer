@@ -1,4 +1,4 @@
-import { DailySchedule, MedicationSchedule, Reminder, ReminderResponse } from "@/types/Types"
+import { DailySchedule, MedicationSchedule, Prescription, Reminder, ReminderResponse } from "@/types/Types"
 import { get, post } from "./fetch"
 
 import axios from "axios"
@@ -101,6 +101,34 @@ export const getMedicationScheduleForRange = async (
     return schedule;
   } catch (error: any) {
     console.error("Error fetching medication schedule for range:", error);
+    throw error;
+  }
+};
+
+export const createPrescription = async (
+  userId: string,
+  prescriptionData: Prescription
+): Promise<Prescription> => {
+  try {
+    const response = await api.post(
+      `/patients/${userId}/prescriptions/create`,
+      prescriptionData
+    );
+    const prescription = response.data as Prescription;
+    return prescription;
+  } catch (error: any) {
+    console.error("Error creating prescription:", error);
+    throw error;
+  }
+};
+
+export const createMedicationSchedule = async (userId: string): Promise<MedicationSchedule> => {
+  try {
+    const response = await api.post(`/patients/${userId}/schedules/create`);
+    const schedule = response.data as MedicationSchedule;
+    return schedule;
+  } catch (error: any) {
+    console.error(`Error creating medication schedule for user ${userId}:`, error);
     throw error;
   }
 };
