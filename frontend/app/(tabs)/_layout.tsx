@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
 import { useReminder } from "../../context/reminder-context" // Import useReminder
 import ReminderModal from "../../components/ReminderModal" // Import ReminderModal
-import { Reminder } from "@/types/Reminder" // Import Reminder type
+import { Reminder } from "@/types/Types" // Import Reminder type
 import BottomBar from "@/components/ui/nav-bar"
 
 export default function AppLayout() {

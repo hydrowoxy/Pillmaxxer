@@ -8,7 +8,7 @@ import {
   Animated,
   TouchableWithoutFeedback,
 } from 'react-native';
-import { Reminder } from '@/types/Reminder';
+import { Reminder } from '@/types/Types';
 import { useRouter } from 'expo-router';
 
 interface ReminderModalProps {

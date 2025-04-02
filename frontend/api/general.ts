@@ -1,4 +1,4 @@
-import { Reminder, ReminderResponse } from "@/types/Reminder"
+import { DailySchedule, MedicationSchedule, Reminder, ReminderResponse } from "@/types/Types"
 import { get, post } from "./fetch"
 
 import axios from "axios"
@@ -70,3 +70,37 @@ export const getReminder = async (
   console.log("Fetched reminder data: ", reminderData)
   return reminderData
 }
+
+export const getMedicationSchedule = async (
+  userId: string,
+  date?: string // Optional date parameter
+) : Promise<DailySchedule> => {
+  try {
+    let url = `/patients/${userId}/schedules`;
+    if (date) {
+      url += `?date=${date}`;
+    }
+    const response = await api.get(url);
+    const schedule = response.data as DailySchedule;
+    return schedule;
+  } catch (error: any) {
+    console.error("Error fetching medication schedule:", error);
+    throw error;
+  }
+};
+
+export const getMedicationScheduleForRange = async (
+  userId: string,
+  startDate: string,
+  endDate: string
+) : Promise<MedicationSchedule> => {
+  try {
+    const url = `/patients/${userId}/schedules/${startDate}/${endDate}`;
+    const response = await api.get(url);
+    const schedule = response.data as MedicationSchedule;
+    return schedule;
+  } catch (error: any) {
+    console.error("Error fetching medication schedule for range:", error);
+    throw error;
+  }
+};

@@ -1,6 +1,9 @@
 package com.team27.pillmaxxer.controller;
 
 import com.team27.pillmaxxer.service.ImageScanService;
+
+import lombok.extern.java.Log;
+
 import com.team27.pillmaxxer.dto.ImageScanRequest;
 import com.team27.pillmaxxer.model.Prescription;
 
@@ -9,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/image-scan")
+@Log
 public class ImageScanController {
     private final ImageScanService imageScanService;
 
@@ -24,6 +28,7 @@ public class ImageScanController {
      */
     @PostMapping("/upload")
     public Prescription scanImageForText(@RequestParam("imageFile") MultipartFile imageFile) {
+        log.info("Scanning image for text...");
         return imageScanService.scanImage(imageFile);
     }
 }
