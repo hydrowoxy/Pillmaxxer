@@ -6,6 +6,10 @@ import { router } from "expo-router"
 import fs from "fs"
 import path from "path"
 
+jest.mock("expo-file-system", () => ({
+  uploadAsync: jest.fn().mockImplementation(mockFileSystemUploadAsync),
+}))
+
 it("processes 95%+ of scanned images under 3 seconds", async () => {
   // locate local test images
   const folder = path.resolve(__dirname, "resources")
@@ -22,7 +26,10 @@ it("processes 95%+ of scanned images under 3 seconds", async () => {
   let successes = 0
 
   for (const uri of paths) {
-    const time = await executeScanImageTest(uri)
+    const base64 = fs.readFileSync(uri, { encoding: "base64" })
+    const fullBase64 = `data:image/jpeg;base64,${base64}`
+
+    const time = await executeScanImageTest(fullBase64)
     if (time <= limit) successes += 1
     console.log(`Time taken for image ${uri}: ${time}ms`)
   }
@@ -32,9 +39,9 @@ it("processes 95%+ of scanned images under 3 seconds", async () => {
   console.log(`Success rate: ${successRate}%`)
 
   expect(successRate).toBeGreaterThanOrEqual(95)
-})
+}, 15000)
 
-// helper
+// test repeated per image
 const executeScanImageTest = async (uri: string) => {
   // mock image upload content and router
   jest.spyOn(ImagePicker, "requestCameraPermissionsAsync").mockResolvedValue({
@@ -76,4 +83,38 @@ const executeScanImageTest = async (uri: string) => {
 
   const timeDifference: number = endTime - startTime
   return timeDifference
+}
+
+// mock mobile file system retrieval for desktop environment instead (takes base64 version of uri and converts to blob)
+const mockFileSystemUploadAsync = async (
+  uri: string,
+  fileUri: string,
+  _options?: object
+) => {
+  const formData = new FormData()
+
+  const base64 = fileUri
+
+  var binary = atob(base64.split(",")[1])
+  var mimeString = base64.split(",")[0].split(":")[1].split(";")[0]
+  var array = []
+  for (var i = 0; i < binary.length; i++) {
+    array.push(binary.charCodeAt(i))
+  }
+
+  const blob = new Blob([new Uint8Array(array)], { type: mimeString })
+  formData.append("imageFile", blob)
+
+  const response = await fetch(uri, {
+    method: "POST",
+    body: formData,
+  })
+
+  const data = await response.json()
+
+  if (response.ok) {
+    return data
+  }
+
+  throw data
 }

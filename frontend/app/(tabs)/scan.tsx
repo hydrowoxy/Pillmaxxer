@@ -31,7 +31,7 @@ export default function ScanImage() {
   const handleImageUpload = async () => {
     setLoading(true)
     const res = await postImageUpload({ params: { imageFile: image || "" } })
-    console.log(res)
+    console.log("processing complete")
     setLoading(false)
 
     router.setParams({ autofill: JSON.stringify(res) })

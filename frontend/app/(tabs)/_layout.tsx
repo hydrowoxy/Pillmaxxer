@@ -20,8 +20,8 @@ export default function AppLayout() {
 
   return (
     <>
-      {/* <Slot /> */}
-      <Tabs
+      <Slot />
+      {/* <Tabs
         screenOptions={{
           tabBarShowLabel: false,
           tabBarStyle: styles.tabBarStyle,
@@ -83,7 +83,7 @@ export default function AppLayout() {
           setIsVisible={setReminderModalVisible}
           reminder={reminderModalContent as Reminder}
         />
-      )}
+      )} */}
     </>
   )
 }
