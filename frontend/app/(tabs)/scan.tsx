@@ -35,8 +35,10 @@ export default function ScanImage() {
     console.log(res?.body)
     setLoading(false)
 
-    router.setParams({ autofill: JSON.stringify(res?.body) })
-    router.push("/(tabs)/prescription-form")
+    router.push({
+      pathname: "/(tabs)/prescription-form",
+      params: { autofill: res?.body },
+    })
   }
 
   return (
