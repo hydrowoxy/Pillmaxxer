@@ -52,7 +52,6 @@ export const ReminderProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       parseInt(reminderTimeParts[1], 10), // Minutes
       parseInt(reminderTimeParts[2], 10)  // Seconds
     );
-    console.log(reminderTime.getTime(), now.getTime());
     const timeDifference = reminderTime.getTime() - now.getTime();
     console.log("Time until next reminder "+ timeDifference);
     if (timeDifference >= -5000 && timeDifference <= 5000) { // within 5 seconds
