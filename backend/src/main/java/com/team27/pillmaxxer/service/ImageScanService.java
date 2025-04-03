@@ -58,7 +58,7 @@ public class ImageScanService {
 
         try {
             Future<String> future = scheduler.submit(task);
-            return future.get(5, TimeUnit.SECONDS);
+            return future.get(10, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
             throw new RuntimeException("OCR process timed out after 5 seconds", e);
         } catch (InterruptedException | ExecutionException e) {
