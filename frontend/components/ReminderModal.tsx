@@ -65,9 +65,9 @@ const ReminderModal = ({ isVisible, setIsVisible, reminder }: ReminderModalProps
     const timeReceived = now.toISOString();
     const scheduledTimeISO = reminderTime.toISOString();
     const timeDifference = reminderTime.getTime() - now.getTime();
-    const absoluteDifferenceMilliseconds = Math.abs(timeDifference);
-    const absoluteDifferenceSeconds = absoluteDifferenceMilliseconds / 1000;
-    const withinThreshold = absoluteDifferenceMilliseconds <= THRESHOLD_IN_SECONDS * 1000;
+    const reminderLatencyMilliseconds = Math.abs(timeDifference);
+    const reminderLatencySeconds = reminderLatencyMilliseconds / 1000;
+    const withinThreshold = reminderLatencyMilliseconds <= THRESHOLD_IN_SECONDS * 1000;
 
     const logEntry = {
       userId: reminder.userId,
@@ -75,8 +75,8 @@ const ReminderModal = ({ isVisible, setIsVisible, reminder }: ReminderModalProps
       scheduledDose: reminder.scheduledDose.medications.map(med => med.medicationName).join(', '),
       scheduledTime: scheduledTimeISO,
       timeReceived,
-      absoluteDifferenceMilliseconds,
-      absoluteDifferenceSeconds,
+      reminderLatencyMilliseconds,
+      reminderLatencySeconds,
       withinThreshold,
     };
 
@@ -86,8 +86,8 @@ const ReminderModal = ({ isVisible, setIsVisible, reminder }: ReminderModalProps
     console.log("Scheduled Dose:", logEntry.scheduledDose);
     console.log("Scheduled Time (ISO):", logEntry.scheduledTime);
     console.log("Time Received (ISO):", logEntry.timeReceived);
-    console.log("Absolute Difference (Milliseconds):", logEntry.absoluteDifferenceMilliseconds);
-    console.log("Absolute Difference (Seconds):", logEntry.absoluteDifferenceSeconds);
+    console.log("Reminder Latency (Milliseconds):", logEntry.reminderLatencyMilliseconds);
+    console.log("Reminder Difference (Seconds):", logEntry.reminderLatencySeconds);
     if (withinThreshold) {
       console.log("\nReminder is within the threshold of 10 seconds. REMINDER VERIFICATION PASSED\n");
     } else {

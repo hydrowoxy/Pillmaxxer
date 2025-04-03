@@ -6,6 +6,8 @@ import com.team27.pillmaxxer.service.PatientService;
 
 import lombok.extern.java.Log;
 
+import java.util.Optional;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -70,9 +72,9 @@ public class PatientController {
     public ResponseEntity<Patient> getPatient(@PathVariable String userId) {
         try {
             log.info("Getting patient data for user: " + userId);
-            return patientService.getPatient(userId)
-                    .map(patient -> ResponseEntity.ok(patient))
-                    .orElse(ResponseEntity.notFound().build());
+            Optional<Patient> patient = patientService.getPatient(userId);
+
+            return ResponseEntity.ok(patient.orElse(null));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
