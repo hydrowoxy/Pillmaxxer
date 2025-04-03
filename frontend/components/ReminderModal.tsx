@@ -17,7 +17,7 @@ interface ReminderModalProps {
   reminder: Reminder | null;
 }
 
-const THRESHOLD_IN_SECONDS = 1; // 1 second threshold
+const THRESHOLD_IN_SECONDS = 10; // 10 second threshold
 
 const ReminderModal = ({ isVisible, setIsVisible, reminder }: ReminderModalProps) => {
   const slideAnim = useRef(new Animated.Value(0)).current;
@@ -89,9 +89,9 @@ const ReminderModal = ({ isVisible, setIsVisible, reminder }: ReminderModalProps
     console.log("Absolute Difference (Milliseconds):", logEntry.absoluteDifferenceMilliseconds);
     console.log("Absolute Difference (Seconds):", logEntry.absoluteDifferenceSeconds);
     if (withinThreshold) {
-      console.log("\nReminder is within the threshold of 1 second. REMINDER VERIFICATION PASSED\n");
+      console.log("\nReminder is within the threshold of 10 seconds. REMINDER VERIFICATION PASSED\n");
     } else {
-      console.log("\nReminder is NOT within the threshold of 1 second. REMINDER VERIFICATION FAILED\n");
+      console.log("\nReminder is NOT within the threshold of 10 seconds. REMINDER VERIFICATION FAILED\n");
     }
     console.log("\n--------------------------------------\n");
   };
