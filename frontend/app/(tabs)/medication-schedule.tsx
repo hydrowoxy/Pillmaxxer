@@ -129,7 +129,9 @@ const MedicationScheduleScreen = () => {
               <Text style={styles.dateText}>{dailySchedule.date}</Text>
               {dailySchedule.scheduledDoses.map((dose: any, doseIndex: any) => (
                 <View key={doseIndex} style={styles.doseContainer}>
-                  <Text style={styles.timeText}>{dose.timeOfDay.substring(0, 5)}</Text>
+                  <Text style={styles.timeText}>
+                    {dose.timeOfDay.substring(0, 5)}
+                  </Text>
                   {dose.medications.map((medication: any, medIndex: any) => (
                     <View key={medIndex} style={styles.medicationContainer}>
                       <Text style={styles.medicationName}>
@@ -213,6 +215,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 4,
     width: "100%",
+    gap: 8,
   },
   dateText: {
     fontSize: 18,
