@@ -64,7 +64,6 @@ export const getPatientData = async (userId: string) => {
 export const getReminder = async (
   userId: string
 ): Promise<ReminderResponse> => {
-  console.log("Fetching reminder for userId: ", userId)
   const data = await api.get(`/patients/${userId}/reminders`)
   const reminderData: ReminderResponse = data.data
   console.log("Fetched reminder data: ", reminderData)

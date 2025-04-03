@@ -147,6 +147,7 @@ public class MedicationScheduleService {
             throws ExecutionException, InterruptedException {
         MedicationSchedule foundSchedule = scheduleRepository.findByuserId(userId);
         if (foundSchedule == null) {
+            log.info("No schedule found for user: " + userId);
             return Optional.empty();
         }
 

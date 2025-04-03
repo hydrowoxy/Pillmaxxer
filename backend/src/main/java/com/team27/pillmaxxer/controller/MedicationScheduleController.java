@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 /**
  * REST controller for managing patient medication schedules.
@@ -48,10 +49,11 @@ public class MedicationScheduleController {
                 date = LocalDate.now();
             }
             log.info("Getting schedule for date: " + date + " for user: " + userId);
-            return scheduleService.getScheduleForDate(userId, date)
-                    .map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.notFound().build());
 
+            Optional<MedicationSchedule.DailySchedule> scheduleOptional = scheduleService.getScheduleForDate(userId,
+                    date);
+
+            return ResponseEntity.ok(scheduleOptional.orElse(null));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }

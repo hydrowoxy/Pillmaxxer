@@ -17,6 +17,8 @@ interface ReminderModalProps {
   reminder: Reminder | null;
 }
 
+const THRESHOLD_IN_SECONDS = 10; // 10 second threshold
+
 const ReminderModal = ({ isVisible, setIsVisible, reminder }: ReminderModalProps) => {
   const slideAnim = useRef(new Animated.Value(0)).current;
   const modalHeight = 250;
@@ -43,7 +45,10 @@ const ReminderModal = ({ isVisible, setIsVisible, reminder }: ReminderModalProps
   };
 
   const logTimingInfo = () => {
-    if (!reminder) return; // Ensure reminder exists before logging
+    if (!reminder) {
+      return;
+    }
+
     const now = new Date();
     const reminderTimeParts = reminder.scheduledDose.timeOfDay.split(':');
     const reminderDateParts = reminder.date.split('-');
@@ -56,10 +61,39 @@ const ReminderModal = ({ isVisible, setIsVisible, reminder }: ReminderModalProps
       parseInt(reminderTimeParts[1], 10),
       parseInt(reminderTimeParts[2], 10)
     );
-    console.log(reminderTime.getTime(), now.getTime());
+
+    const timeReceived = now.toISOString();
+    const scheduledTimeISO = reminderTime.toISOString();
     const timeDifference = reminderTime.getTime() - now.getTime();
-    const absoluteTimeDifference = Math.abs(timeDifference);
-    console.log("TIME INTERVAL BETWEEN SCHEDULED TIME AND ACTUAL REMINDER RECEIVED " + absoluteTimeDifference);
+    const absoluteDifferenceMilliseconds = Math.abs(timeDifference);
+    const absoluteDifferenceSeconds = absoluteDifferenceMilliseconds / 1000;
+    const withinThreshold = absoluteDifferenceMilliseconds <= THRESHOLD_IN_SECONDS * 1000;
+
+    const logEntry = {
+      userId: reminder.userId,
+      date: reminder.date,
+      scheduledDose: reminder.scheduledDose.medications.map(med => med.medicationName).join(', '),
+      scheduledTime: scheduledTimeISO,
+      timeReceived,
+      absoluteDifferenceMilliseconds,
+      absoluteDifferenceSeconds,
+      withinThreshold,
+    };
+
+    console.log("\n----- Reminder Timing Information -----\n");
+    console.log("User ID:", logEntry.userId);
+    console.log("Date:", logEntry.date);
+    console.log("Scheduled Dose:", logEntry.scheduledDose);
+    console.log("Scheduled Time (ISO):", logEntry.scheduledTime);
+    console.log("Time Received (ISO):", logEntry.timeReceived);
+    console.log("Absolute Difference (Milliseconds):", logEntry.absoluteDifferenceMilliseconds);
+    console.log("Absolute Difference (Seconds):", logEntry.absoluteDifferenceSeconds);
+    if (withinThreshold) {
+      console.log("\nReminder is within the threshold of 10 seconds. REMINDER VERIFICATION PASSED\n");
+    } else {
+      console.log("\nReminder is NOT within the threshold of 10 seconds. REMINDER VERIFICATION FAILED\n");
+    }
+    console.log("\n--------------------------------------\n");
   };
 
   const handleOverlayPress = () => {
