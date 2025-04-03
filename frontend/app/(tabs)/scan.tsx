@@ -32,9 +32,10 @@ export default function ScanImage() {
     setLoading(true)
     const res = await postImageUpload({ params: { imageFile: image || "" } })
     console.log("processing complete")
+    console.log(res?.body)
     setLoading(false)
 
-    router.setParams({ autofill: JSON.stringify(res) })
+    router.setParams({ autofill: JSON.stringify(res?.body) })
     router.push("/(tabs)/prescription-form")
   }
 

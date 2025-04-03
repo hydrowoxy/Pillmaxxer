@@ -23,13 +23,15 @@ const MedicationFormScreen = () => {
   const { userId } = useAuth()
   const { fetchReminder } = useReminder()
 
-  const [medicationName, setMedicationName] = useState(medication?.name || "")
+  const [medicationName, setMedicationName] = useState(
+    medication?.medicationName || ""
+  )
   const [dosage, setDosage] = useState(medication?.dosage || "")
   const [frequency, setFrequency] = useState(medication?.frequency || "")
   const [startDate, setStartDate] = useState(new Date())
   const [endDate, setEndDate] = useState(new Date())
   const [instructions, setInstructions] = useState("")
-  const [quantity, setQuantity] = useState("")
+  const [quantity, setQuantity] = useState(medication?.quantity || "")
   const [submissionError, setSubmissionError] = useState<string | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [message, setMessage] = useState<string | null>(null)
