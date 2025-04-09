@@ -130,7 +130,7 @@ public class MedicationScheduleService {
      */
     private List<LocalTime> generateTimes(String frequency) {
         return switch (frequency.toLowerCase().trim()) {
-            case "once daily" -> List.of(LocalTime.now().plusSeconds(20)); // HARD CODE THIS FOR DEMO PURPOSES
+            case "once daily" -> List.of(LocalTime.now().plusSeconds(45)); // HARD CODE THIS FOR DEMO PURPOSES
             case "twice daily" -> List.of(LocalTime.of(9, 0), LocalTime.of(21, 0));
             case "three times daily" -> List.of(LocalTime.of(8, 0), LocalTime.of(14, 0), LocalTime.of(20, 0));
             case "every 6 hours" ->

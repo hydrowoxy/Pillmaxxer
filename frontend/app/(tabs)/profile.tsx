@@ -88,6 +88,9 @@ const ProfileScreen = () => {
           </View>
         </ScrollView>
       </View>
+      <Text style={styles.specialText}>
+        Dedicated to Ethan Judson. Pillmaxx on.
+      </Text>
       <View style={styles.bottomButtonContainer}>
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutButtonText}>Logout</Text>
@@ -153,6 +156,11 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     fontSize: 16,
+  },
+  specialText: {
+    color: "white",
+    fontSize: 12,
+    marginLeft: 24,
   },
 })
 
